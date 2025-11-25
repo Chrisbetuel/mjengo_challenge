@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Home')
+@section('title', __('messages.title'))
 
 @section('content')
 <!-- Slideshow Background -->
@@ -13,14 +13,29 @@
 </div>
 
 <div class="container py-5 position-relative">
+    <!-- Language Switcher -->
+    <div class="language-switcher text-end mb-3">
+        <form id="language-form" action="{{ route('lang.switch') }}" method="POST" class="d-inline">
+            @csrf
+            <select name="locale" onchange="document.getElementById('language-form').submit()" class="form-select d-inline w-auto">
+                <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
+                <option value="sw" {{ app()->getLocale() == 'sw' ? 'selected' : '' }}>Swahili</option>
+            </select>
+        </form>
+    </div>
     <!-- Header with Oweru Logo -->
-    <div class="row mb-5">
-        <div class="col-12 text-center">
+    <div class="row mb-5" style="margin-bottom: 3rem;">
+        <div class="col-12 text-center" style="text-align: center;">
             <div class="oweru-logo">
-                <span class="oweru-o">O</span>
-                <span class="oweru-text">weru</span>
+                <img src="{{ asset('images/logo.png') }}" 
+                     alt="Oweru Logo" 
+                     style="width:120px; height:auto; object-fit:contain;">
             </div>
-            <p class="text-light mt-2 fs-5">Smart Investments. Safe Returns.</p>
+
+            <p class="text-light mt-2 fs-5" 
+               style="color:#ffffff; margin-top:10px; font-size:1.2rem;">
+               {{ __('messages.smart_investments') }}
+            </p>
         </div>
     </div>
 
@@ -28,16 +43,16 @@
     <div class="row align-items-center min-vh-100">
         <div class="col-lg-6">
             <div class="hero-content">
-                <h1 class="display-3 fw-bold text-white mb-3 futura-font">Mjengo Challenge</h1>
-                <p class="lead mb-4 text-white fs-2 fw-light poppins-font">Build Your Dream Step by Step Through Collective Savings</p>
-                <p class="text-light mb-4 fs-5 poppins-font">Join thousands of Tanzanians in achieving their construction goals through our innovative savings challenge platform.</p>
+                <h1 class="display-3 fw-bold text-white mb-3 futura-font">{{ __('messages.mjengo_challenge') }}</h1>
+                <p class="lead mb-4 text-white fs-2 fw-light poppins-font">{{ __('messages.build_dream') }}</p>
+                <p class="text-light mb-4 fs-5 poppins-font">{{ __('messages.join_community') }}</p>
                 
                 <div class="mt-4 hero-buttons">
                     <a href="{{ route('register') }}" class="btn btn-oweru-gold btn-lg me-3 shadow-lg glow-button">
-                        <i class="fas fa-user-plus me-2"></i>Get Started
+                        <i class="fas fa-user-plus me-2"></i>{{ __('messages.get_started') }}
                     </a>
                     <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg shadow-sm hover-grow">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                        <i class="fas fa-sign-in-alt me-2"></i>{{ __('messages.login') }}
                     </a>
                 </div>
 
@@ -46,19 +61,19 @@
                     <div class="col-4 text-center">
                         <div class="stat-item">
                             <div class="stat-number text-oweru-gold fw-bold fs-3 futura-font">10K+</div>
-                            <div class="stat-label text-light poppins-font">Active Users</div>
+                            <div class="stat-label text-light poppins-font">{{ __('messages.active_users') }}</div>
                         </div>
                     </div>
                     <div class="col-4 text-center">
                         <div class="stat-item">
                             <div class="stat-number text-oweru-gold fw-bold fs-3 futura-font">5M+</div>
-                            <div class="stat-label text-light poppins-font">Saved</div>
+                            <div class="stat-label text-light poppins-font">{{ __('messages.saved') }}</div>
                         </div>
                     </div>
                     <div class="col-4 text-center">
                         <div class="stat-item">
                             <div class="stat-number text-oweru-gold fw-bold fs-3 futura-font">500+</div>
-                            <div class="stat-label text-light poppins-font">Projects</div>
+                            <div class="stat-label text-light poppins-font">{{ __('messages.projects') }}</div>
                         </div>
                     </div>
                 </div>
@@ -66,15 +81,15 @@
         </div>
         <div class="col-lg-6">
             <div class="content-card bg-oweru-light rounded-4 p-5 shadow-lg">
-                <h3 class="text-center text-oweru-dark mb-4 futura-font">Start Building Today</h3>
+                <h3 class="text-center text-oweru-dark mb-4 futura-font">{{ __('messages.start_building_today') }}</h3>
                 <div class="feature-highlights">
                     <div class="feature-item d-flex align-items-center mb-4">
                         <div class="feature-icon bg-oweru-gold rounded-circle d-flex align-items-center justify-content-center me-3">
                             <i class="fas fa-trophy text-white"></i>
                         </div>
                         <div>
-                            <h5 class="text-oweru-dark mb-1 futura-font">Daily Challenges</h5>
-                            <p class="text-oweru-gray mb-0 poppins-font">Participate in daily savings challenges</p>
+                            <h5 class="text-oweru-dark mb-1 futura-font">{{ __('messages.daily_challenges') }}</h5>
+                            <p class="text-oweru-gray mb-0 poppins-font">{{ __('messages.daily_challenges_desc') }}</p>
                         </div>
                     </div>
                     <div class="feature-item d-flex align-items-center mb-4">
@@ -82,8 +97,8 @@
                             <i class="fas fa-bricks text-white"></i>
                         </div>
                         <div>
-                            <h5 class="text-oweru-dark mb-1 futura-font">Material Purchase</h5>
-                            <p class="text-oweru-gray mb-0 poppins-font">Buy materials directly or in installments</p>
+                            <h5 class="text-oweru-dark mb-1 futura-font">{{ __('messages.material_purchase') }}</h5>
+                            <p class="text-oweru-gray mb-0 poppins-font">{{ __('messages.material_purchase_desc') }}</p>
                         </div>
                     </div>
                     <div class="feature-item d-flex align-items-center mb-4">
@@ -91,8 +106,8 @@
                             <i class="fas fa-users text-white"></i>
                         </div>
                         <div>
-                            <h5 class="text-oweru-dark mb-1 futura-font">Group Savings</h5>
-                            <p class="text-oweru-gray mb-0 poppins-font">Save together for bigger projects</p>
+                            <h5 class="text-oweru-dark mb-1 futura-font">{{ __('messages.lipa_kidogo') }}</h5>
+                            <p class="text-oweru-gray mb-0 poppins-font">{{ __('messages.lipa_kidogo_desc') }}</p>
                         </div>
                     </div>
                 </div>
@@ -103,8 +118,8 @@
     <!-- Features Section -->
     <div class="row mt-5 pt-5">
         <div class="col-12 text-center mb-5">
-            <h2 class="fw-bold text-white display-5 futura-font">How It Works</h2>
-            <p class="text-light fs-5 poppins-font">Three simple ways to achieve your construction goals</p>
+            <h2 class="fw-bold text-white display-5 futura-font">{{ __('messages.how_it_works') }}</h2>
+            <p class="text-light fs-5 poppins-font">{{ __('messages.three_simple_ways') }}</p>
         </div>
         
         <div class="col-md-4 mb-4">
@@ -115,10 +130,10 @@
                             <i class="fas fa-trophy fa-2x text-white"></i>
                         </div>
                     </div>
-                    <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">Daily Challenges</h5>
-                    <p class="card-text text-oweru-gray fs-6 poppins-font">Participate in daily savings challenges with your community</p>
+                    <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">{{ __('messages.daily_challenges') }}</h5>
+                    <p class="card-text text-oweru-gray fs-6 poppins-font">{{ __('messages.daily_challenges_desc') }}</p>
                     <div class="feature-hover">
-                        <span class="text-oweru-gold">Learn More →</span>
+                        <span class="text-oweru-gold">{{ __('messages.learn_more') }}</span>
                     </div>
                 </div>
             </div>
@@ -131,10 +146,10 @@
                             <i class="fas fa-bricks fa-2x text-white"></i>
                         </div>
                     </div>
-                    <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">Material Purchase</h5>
-                    <p class="card-text text-oweru-gray fs-6 poppins-font">Buy construction materials directly or through installments</p>
+                    <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">{{ __('messages.material_purchase') }}</h5>
+                    <p class="card-text text-oweru-gray fs-6 poppins-font">{{ __('messages.material_purchase_desc') }}</p>
                     <div class="feature-hover">
-                        <span class="text-oweru-blue">Learn More →</span>
+                        <span class="text-oweru-blue">{{ __('messages.learn_more') }}</span>
                     </div>
                 </div>
             </div>
@@ -147,10 +162,10 @@
                             <i class="fas fa-users fa-2x text-white"></i>
                         </div>
                     </div>
-                    <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">Group Savings</h5>
-                    <p class="card-text text-oweru-gray fs-6 poppins-font">Form groups and save together for bigger projects</p>
+                    <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">{{ __('messages.group_savings') }}</h5>
+                    <p class="card-text text-oweru-gray fs-6 poppins-font">{{ __('messages.group_savings_desc') }}</p>
                     <div class="feature-hover">
-                        <span class="text-oweru-secondary">Learn More →</span>
+                        <span class="text-oweru-secondary">{{ __('messages.learn_more') }}</span>
                     </div>
                 </div>
             </div>
@@ -161,10 +176,10 @@
     <div class="row mt-5 pt-5">
         <div class="col-12">
             <div class="cta-section bg-oweru-dark bg-opacity-85 rounded-4 p-5 text-center text-white shadow-lg backdrop-blur">
-                <h3 class="fw-bold mb-3 futura-font">Ready to Start Your Construction Journey?</h3>
-                <p class="mb-4 opacity-90 poppins-font">Join thousands of successful builders today</p>
+                <h3 class="fw-bold mb-3 futura-font">{{ __('messages.ready_to_start') }}</h3>
+                <p class="mb-4 opacity-90 poppins-font">{{ __('messages.join_today') }}</p>
                 <a href="{{ route('register') }}" class="btn btn-oweru-gold btn-lg text-oweru-dark fw-bold shadow">
-                    <i class="fas fa-rocket me-2"></i>Start Building Now
+                    <i class="fas fa-rocket me-2"></i>{{ __('messages.start_building_now') }}
                 </a>
             </div>
         </div>
@@ -305,16 +320,6 @@
     transition: all 0.4s ease;
 }
 
-.feature-card:hover .feature-icon {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.feature-hover {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s ease;
-}
-
 .feature-card:hover .feature-hover {
     opacity: 1;
     transform: translateY(0);
@@ -448,170 +453,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-@endsection
-
-@section('footer')
-<!-- Footer -->
-<footer class="footer bg-oweru-dark text-white py-5 mt-5">
-    <div class="container-fluid">
-        <div class="row g-4">
-            <!-- Company Info -->
-            <div class="col-lg-4 col-md-6">
-                <div class="footer-logo mb-3">
-                    <span class="oweru-o">O</span>
-                    <span class="oweru-text">weru</span>
-                </div>
-                <p class="text-light mb-3 futura-font">Smart Investments. Safe Returns.</p>
-                <p class="text-oweru-gray poppins-font small mb-3">
-                    Empowering Tanzanians with innovative financial solutions for building a brighter future through collective savings and investment opportunities.
-                </p>
-                <div class="social-links">
-                    <a href="#" class="text-oweru-gold me-3"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-oweru-gold me-3"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-oweru-gold me-3"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-oweru-gold"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="col-lg-2 col-md-6">
-                <h5 class="futura-font fw-bold text-white mb-3">Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="{{ route('home') }}" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font">Home</a></li>
-                    <li class="mb-2"><a href="{{ route('challenges.index') }}" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font">Challenges</a></li>
-                    <li class="mb-2"><a href="{{ route('materials.index') }}" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font">Materials</a></li>
-                    <li class="mb-2"><a href="{{ route('groups.index') }}" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font">Groups</a></li>
-                    @auth
-                    <li class="mb-2"><a href="{{ route('dashboard') }}" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font">Dashboard</a></li>
-                    @endauth
-                </ul>
-            </div>
-
-            <!-- Services -->
-            <div class="col-lg-2 col-md-6">
-                <h5 class="futura-font fw-bold text-white mb-3">Services</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><span class="text-oweru-gray poppins-font">Savings Challenges</span></li>
-                    <li class="mb-2"><span class="text-oweru-gray poppins-font">Lipa Kidogo Plans</span></li>
-                    <li class="mb-2"><span class="text-oweru-gray poppins-font">Group Investments</span></li>
-                    <li class="mb-2"><span class="text-oweru-gray poppins-font">Material Purchases</span></li>
-                    <li class="mb-2"><span class="text-oweru-gray poppins-font">Financial Education</span></li>
-                </ul>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="col-lg-2 col-md-6">
-                <h5 class="futura-font fw-bold text-white mb-3">Contact</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <i class="fas fa-map-marker-alt text-oweru-gold me-2"></i>
-                        <span class="text-oweru-gray poppins-font small">Dar es Salaam, Tanzania</span>
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-phone text-oweru-gold me-2"></i>
-                        <span class="text-oweru-gray poppins-font small">+255 XXX XXX XXX</span>
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-envelope text-oweru-gold me-2"></i>
-                        <span class="text-oweru-gray poppins-font small">info@oweru.co.tz</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Newsletter -->
-            <div class="col-lg-2 col-md-6">
-                <h5 class="futura-font fw-bold text-white mb-3">Newsletter</h5>
-                <p class="text-oweru-gray poppins-font small mb-3">Stay updated with our latest news and offers.</p>
-                <form class="newsletter-form">
-                    <div class="input-group">
-                        <input type="email" class="form-control bg-oweru-blue border-0 text-white poppins-font" placeholder="Your email" style="background-color: var(--oweru-blue) !important;">
-                        <button class="btn btn-oweru-gold futura-font fw-bold" type="submit">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Footer Bottom -->
-        <hr class="my-4" style="border-color: var(--oweru-gray);">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <p class="text-oweru-gray poppins-font small mb-0">
-                    &copy; {{ date('Y') }} Oweru. All rights reserved.
-                </p>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <a href="#" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font small me-3">Privacy Policy</a>
-                <a href="#" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font small me-3">Terms of Service</a>
-                <a href="#" class="text-oweru-gray hover-oweru-gold text-decoration-none poppins-font small">Support</a>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<style>
-/* Footer Styles */
-.footer {
-    background: linear-gradient(135deg, var(--oweru-dark) 0%, var(--oweru-blue) 100%);
-    border-top: 3px solid var(--oweru-gold);
-}
-
-.footer-logo {
-    font-family: 'Futura PT', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    display: inline-block;
-}
-
-.footer .oweru-o {
-    color: var(--oweru-gold);
-    font-size: 2.5rem;
-}
-
-.footer .oweru-text {
-    color: var(--oweru-light);
-    font-weight: 600;
-}
-
-.social-links a {
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-}
-
-.social-links a:hover {
-    color: var(--oweru-gold) !important;
-    transform: translateY(-2px);
-}
-
-.hover-oweru-gold:hover {
-    color: var(--oweru-gold) !important;
-}
-
-.newsletter-form .form-control:focus {
-    box-shadow: 0 0 0 0.2rem rgba(200, 145, 40, 0.25);
-    border-color: var(--oweru-gold);
-}
-
-.newsletter-form .input-group .btn {
-    border-radius: 0 0.375rem 0.375rem 0;
-}
-
-/* Responsive Footer */
-@media (max-width: 768px) {
-    .footer .row > div {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .footer .col-md-6.text-md-end {
-        text-align: center !important;
-        margin-top: 1rem;
-    }
-
-    .social-links {
-        justify-content: center;
-    }
-}
-</style>
 @endsection

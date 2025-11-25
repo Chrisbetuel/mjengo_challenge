@@ -8,15 +8,26 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\App;
+use Illuminate\Http\Request;
+
 // Public routes
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::post('/lang/switch', function (Request $request) {
+    $locale = $request->input('locale');
+    if (in_array($locale, ['en', 'sw'])) {
+        Session::put('locale', $locale);
+        App::setLocale($locale);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
 
 // Admin login routes
 Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');

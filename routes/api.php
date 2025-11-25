@@ -1,12 +1,21 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ChallengeController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\PenaltyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
+
+route::get('/status', function () {
+    return response()->json(['status' => 'API is running']);
+});
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 

@@ -39,10 +39,17 @@
                 <i class="fas fa-hard-hat"></i> Mjengo Challenge
             </a>
             @auth
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav ms-auto d-flex align-items-center">
                 <span class="navbar-text me-3">
                     Welcome, {{ Auth::user()->username }}
                 </span>
+                <form method="POST" action="{{ route('lang.switch') }}" class="d-inline me-3" id="lang-switch-form">
+                    @csrf
+                    <select name="locale" onchange="document.getElementById('lang-switch-form').submit()" class="form-select form-select-sm">
+                        <option value="en" {{ session('locale', app()->getLocale()) == 'en' ? 'selected' : '' }}>English</option>
+                        <option value="sw" {{ session('locale') == 'sw' ? 'selected' : '' }}>Swahili</option>
+                    </select>
+                </form>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline" id="logout-form">
                     @csrf
                     <button type="submit" class="btn btn-outline-light btn-sm">
@@ -57,47 +64,53 @@
     @auth
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                               href="{{ route('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('challenges.*') ? 'active' : '' }}"
-                               href="{{ route('challenges.index') }}">
-                                <i class="fas fa-trophy me-2"></i> Challenges
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('materials.*') ? 'active' : '' }}"
-                               href="{{ route('materials.index') }}">
-                                <i class="fas fa-bricks me-2"></i> Materials
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('groups.*') ? 'active' : '' }}"
-                               href="{{ route('groups.index') }}">
-                                <i class="fas fa-users me-2"></i> Groups
-                            </a>
-                        </li>
-                        @if(Auth::user()->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
-                               href="{{ route('admin.dashboard') }}">
-                                <i class="fas fa-cog me-2"></i> Admin Panel
-                            </a>
-                        </li>
-                        @endif
-                    </ul>
-                </div>
-            </nav>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                @yield('content')
-            </main>
+            @if(! View::hasSection('no_sidebar') || strtolower(View::getSection('no_sidebar')) !== 'true')
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                    <div class="position-sticky pt-3">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                                   href="{{ route('dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('challenges.*') ? 'active' : '' }}"
+                                   href="{{ route('challenges.index') }}">
+                                    <i class="fas fa-trophy me-2"></i> Challenges
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('materials.*') ? 'active' : '' }}"
+                                   href="{{ route('materials.index') }}">
+                                    <i class="fas fa-bricks me-2"></i> Materials
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('groups.*') ? 'active' : '' }}"
+                                   href="{{ route('groups.index') }}">
+                                    <i class="fas fa-users me-2"></i> Groups
+                                </a>
+                            </li>
+                            @if(Auth::user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
+                                   href="{{ route('admin.dashboard') }}">
+                                    <i class="fas fa-cog me-2"></i> Admin Panel
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </div>
+                </nav>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    @yield('content')
+                </main>
+            @else
+                <main class="col-12 px-md-4">
+                    @yield('content')
+                </main>
+            @endif
         </div>
     </div>
     @else

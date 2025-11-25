@@ -42,4 +42,33 @@ class ActivityLog extends Model
             ],
         ]);
     }
+
+    public static function logChallengeJoin($userId, $challengeId)
+    {
+        return self::create([
+            'user_id' => $userId,
+            'action' => 'challenge_join',
+            'description' => "User joined challenge ID: {$challengeId}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'data' => [
+                'challenge_id' => $challengeId,
+            ],
+        ]);
+    }
+
+    public static function logPayment($userId, $amount, $challengeId)
+    {
+        return self::create([
+            'user_id' => $userId,
+            'action' => 'payment',
+            'description' => "Payment of amount: {$amount} for challenge ID: {$challengeId}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'data' => [
+                'amount' => $amount,
+                'challenge_id' => $challengeId,
+            ],
+        ]);
+    }
 }
