@@ -11,6 +11,7 @@ use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
 // Home route

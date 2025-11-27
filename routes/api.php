@@ -45,6 +45,10 @@ Route::middleware('auth')->prefix('chatbot')->name('chatbot.')->group(function (
     Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
     Route::post('/rate', [ChatbotController::class, 'rateResponse'])->name('rate');
     Route::post('/clear', [ChatbotController::class, 'clearHistory'])->name('clear');
+});
+
+// Public chatbot endpoints
+Route::prefix('chatbot')->name('chatbot.')->group(function () {
     Route::get('/suggestions', [ChatbotController::class, 'getSuggestions'])->name('suggestions');
 });
 
@@ -56,12 +60,13 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     
     Route::post('/materials', [MaterialController::class, 'store']);
     
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    // Uncomment these if UserController and StatsController are created
+    // Route::get('/users', [UserController::class, 'index']);
+    // Route::get('/users/{id}', [UserController::class, 'show']);
+    // Route::put('/users/{id}', [UserController::class, 'update']);
+    // Route::delete('/users/{id}', [UserController::class, 'destroy']);
     
-    Route::get('/stats/overview', [StatsController::class, 'overview']);
-    Route::get('/stats/payments', [StatsController::class, 'paymentStats']);
-    Route::get('/stats/challenges', [StatsController::class, 'challengeStats']);
+    // Route::get('/stats/overview', [StatsController::class, 'overview']);
+    // Route::get('/stats/payments', [StatsController::class, 'paymentStats']);
+    // Route::get('/stats/challenges', [StatsController::class, 'challengeStats']);
 });
