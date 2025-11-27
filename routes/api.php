@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ChallengeController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\PenaltyController;
+use App\Http\Controllers\Api\ChatbotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Penalties
     Route::get('/penalties/user/{user_id}', [PenaltyController::class, 'getUserPenalties']);
     Route::post('/penalties/appeal', [PenaltyController::class, 'appeal']);
+});
+
+// Chatbot routes (accessible from web with auth)
+Route::middleware('auth')->prefix('chatbot')->name('chatbot.')->group(function () {
+    Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
+    Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
+    Route::post('/rate', [ChatbotController::class, 'rateResponse'])->name('rate');
+    Route::post('/clear', [ChatbotController::class, 'clearHistory'])->name('clear');
+    Route::get('/suggestions', [ChatbotController::class, 'getSuggestions'])->name('suggestions');
 });
 
 // Admin only routes

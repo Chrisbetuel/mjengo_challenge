@@ -55,7 +55,6 @@
 
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
-
                     <div class="mb-4">
                         <label for="name" class="block text-oweru-dark text-sm font-bold mb-2 futura-font">Full Name</label>
                         <input type="text" name="name" id="name" value="{{ old('name') }}"
