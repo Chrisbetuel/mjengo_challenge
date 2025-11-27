@@ -396,7 +396,7 @@
                             </div>
                         </div>
                         <div class="col-8">
-                            <h3 class="counter text-oweru-dark mb-1">{{ $pendingGroups->sum('activeMembers->count()') + $activeGroups->sum('activeMembers->count()') }}</h3>
+                            <h3 class="counter text-oweru-dark mb-1">{{ $pendingGroups->sum('active_members_count') + $activeGroups->sum('active_members_count') }}</h3>
                             <p class="text-oweru-gray mb-0 poppins-font">Total Members</p>
                         </div>
                     </div>
@@ -450,19 +450,19 @@
                                         <td>
                                             <div class="poppins-font">
                                                 <div class="text-oweru-dark small fw-bold">
-                                                    {{ $group->leader->username ?? 'N/A' }}
+                                                    {{ $group->creator->username ?? 'N/A' }}
                                                 </div>
                                                 <div class="text-oweru-gray small">
-                                                    {{ $group->leader->email ?? 'No email' }}
+                                                    {{ $group->creator->email ?? 'No email' }}
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <span class="futura-font text-oweru-dark d-block">{{ $group->getMemberCount() }}</span>
+                                                <span class="futura-font text-oweru-dark d-block">{{ $group->active_members_count ?? 0 }}</span>
                                                 <small class="text-oweru-gray poppins-font">of {{ $group->max_members }}</small>
                                                 <div class="member-progress">
-                                                    <div class="member-progress-bar" style="width: {{ ($group->getMemberCount() / $group->max_members) * 100 }}%"></div>
+                                                    <div class="member-progress-bar" style="width: {{ (($group->active_members_count ?? 0) / $group->max_members) * 100 }}%"></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -487,18 +487,20 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2">
+                                                <!-- FIXED: Removed @method('PATCH') -->
                                                 <form action="{{ route('admin.groups.approve', $group) }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn-oweru-success btn-sm" 
-                                                            data-bs-toggle="tooltip" 
+                                                    <button type="submit" class="btn-oweru-success btn-sm"
+                                                            data-bs-toggle="tooltip"
                                                             title="Approve Group">
                                                         <i class="fas fa-check me-1"></i>Approve
                                                     </button>
                                                 </form>
+                                                <!-- FIXED: Removed @method('PATCH') -->
                                                 <form action="{{ route('admin.groups.reject', $group) }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn-oweru-danger btn-sm" 
-                                                            data-bs-toggle="tooltip" 
+                                                    <button type="submit" class="btn-oweru-danger btn-sm"
+                                                            data-bs-toggle="tooltip"
                                                             title="Reject Group"
                                                             onclick="return confirm('Are you sure you want to reject this group? This action cannot be undone.')">
                                                         <i class="fas fa-times me-1"></i>Reject
@@ -566,19 +568,19 @@
                                         <td>
                                             <div class="poppins-font">
                                                 <div class="text-oweru-dark small fw-bold">
-                                                    {{ $group->leader->username ?? 'N/A' }}
+                                                    {{ $group->creator->username ?? 'N/A' }}
                                                 </div>
                                                 <div class="text-oweru-gray small">
-                                                    {{ $group->leader->email ?? 'No email' }}
+                                                    {{ $group->creator->email ?? 'No email' }}
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <span class="futura-font text-oweru-dark d-block">{{ $group->getMemberCount() }}</span>
+                                                <span class="futura-font text-oweru-dark d-block">{{ $group->active_members_count ?? 0 }}</span>
                                                 <small class="text-oweru-gray poppins-font">of {{ $group->max_members }}</small>
                                                 <div class="member-progress">
-                                                    <div class="member-progress-bar" style="width: {{ ($group->getMemberCount() / $group->max_members) * 100 }}%"></div>
+                                                    <div class="member-progress-bar" style="width: {{ (($group->active_members_count ?? 0) / $group->max_members) * 100 }}%"></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -604,6 +606,7 @@
                                                    title="View Group Details">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
+                                                <!-- FIXED: Removed @method('PATCH') and corrected route -->
                                                 <form action="{{ route('admin.groups.deactivate', $group) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" 

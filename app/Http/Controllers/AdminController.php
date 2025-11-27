@@ -289,6 +289,14 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Group rejected successfully.');
     }
 
+    public function deactivateGroup($id)
+    {
+        $group = Group::findOrFail($id);
+        $group->update(['status' => 'inactive']);
+        
+        return redirect()->back()->with('success', 'Group deactivated successfully.');
+    }
+
     public function editGroup($id)
     {
         $group = Group::findOrFail($id);

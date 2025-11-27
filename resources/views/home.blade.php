@@ -115,6 +115,58 @@
         </div>
     </div>
 
+    <!-- Testimonials Section -->
+    <div class="row mt-5 pt-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold text-white display-5 futura-font">{{ __('messages.what_our_users_say') }}</h2>
+            <p class="text-light fs-5 poppins-font">{{ __('messages.trusted_by_thousands') }}</p>
+        </div>
+        
+        <div class="col-12">
+            <div class="testimonials-container">
+                <div class="testimonials-slider">
+                    @foreach($testimonials as $testimonial)
+                    <div class="testimonial-card {{ $loop->first ? 'active' : '' }}">
+                        <div class="testimonial-content">
+                            <div class="rating-stars mb-3">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= $testimonial->rating ? 'text-oweru-gold' : 'text-oweru-gray' }}"></i>
+                                @endfor
+                            </div>
+                            <p class="testimonial-text">"{{ $testimonial->content }}"</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    {{ strtoupper(substr($testimonial->user->username, 0, 1)) }}
+                                </div>
+                                <div class="author-info">
+                                    <h6 class="author-name mb-1 futura-font">{{ $testimonial->user->username }}</h6>
+                                    <p class="author-role text-oweru-gray mb-0 poppins-font">Oweru User</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                
+                <!-- Testimonial Navigation Dots -->
+                <div class="testimonial-dots">
+                    @foreach($testimonials as $testimonial)
+                    <span class="dot {{ $loop->first ? 'active' : '' }}" data-index="{{ $loop->index }}"></span>
+                    @endforeach
+                </div>
+
+                <!-- Add Testimonial Button -->
+                @auth
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-oweru-outline" data-bs-toggle="modal" data-bs-target="#addTestimonialModal">
+                        <i class="fas fa-plus me-2"></i>{{ __('messages.share_your_experience') }}
+                    </button>
+                </div>
+                @endauth
+            </div>
+        </div>
+    </div>
+
     <!-- Features Section -->
     <div class="row mt-5 pt-5">
         <div class="col-12 text-center mb-5">
@@ -186,6 +238,47 @@
     </div>
 </div>
 
+<!-- Add Testimonial Modal -->
+@auth
+<div class="modal fade" id="addTestimonialModal" tabindex="-1" aria-labelledby="addTestimonialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-oweru-dark text-white">
+                <h5 class="modal-title futura-font" id="addTestimonialModalLabel">
+                    <i class="fas fa-edit me-2"></i>{{ __('messages.share_your_experience') }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('testimonials.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label for="rating" class="form-label futura-font">{{ __('messages.your_rating') }}</label>
+                        <div class="rating-input">
+                            @for($i = 1; $i <= 5; $i++)
+                            <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" {{ $i == 5 ? 'checked' : '' }}>
+                            <label for="star{{ $i }}" class="star-label">
+                                <i class="fas fa-star"></i>
+                            </label>
+                            @endfor
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label futura-font">{{ __('messages.your_testimonial') }}</label>
+                        <textarea class="form-control" id="content" name="content" rows="5" 
+                                  placeholder="{{ __('messages.tell_us_about_experience') }}" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.cancel') }}</button>
+                    <button type="submit" class="btn btn-oweru-gold">{{ __('messages.submit_testimonial') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endauth
+
 <style>
 /* Oweru Brand Colors */
 :root {
@@ -221,6 +314,153 @@
     background-color: #b58120;
     border-color: #b58120;
     color: var(--oweru-dark);
+}
+
+.btn-oweru-outline {
+    border: 2px solid var(--oweru-gold);
+    color: var(--oweru-gold);
+    background: transparent;
+    font-weight: 600;
+}
+
+.btn-oweru-outline:hover {
+    background: var(--oweru-gold);
+    color: var(--oweru-dark);
+}
+
+/* Testimonials Styles */
+.testimonials-container {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.testimonials-slider {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+.testimonial-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.8s ease;
+    pointer-events: none;
+}
+
+.testimonial-card.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+}
+
+.testimonial-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(9, 23, 42, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.rating-stars {
+    font-size: 1.5rem;
+}
+
+.testimonial-text {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: var(--oweru-dark);
+    font-style: italic;
+    margin-bottom: 2rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--oweru-gradient-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--oweru-dark);
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.author-name {
+    color: var(--oweru-dark);
+    margin: 0;
+}
+
+.author-role {
+    font-size: 0.9rem;
+}
+
+.testimonial-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--oweru-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: var(--oweru-gold);
+    transform: scale(1.2);
+}
+
+.dot:hover {
+    background: var(--oweru-gold);
+}
+
+/* Rating Input Styles */
+.rating-input {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.rating-input input[type="radio"] {
+    display: none;
+}
+
+.star-label {
+    font-size: 2rem;
+    color: var(--oweru-gray);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.rating-input input[type="radio"]:checked ~ .star-label,
+.star-label:hover,
+.star-label:hover ~ .star-label {
+    color: var(--oweru-gold);
+}
+
+.rating-input input[type="radio"]:checked + .star-label {
+    color: var(--oweru-gold);
 }
 
 /* Oweru Logo Styling */
@@ -398,6 +638,18 @@
     .oweru-o {
         font-size: 2.5rem;
     }
+    
+    .testimonial-content {
+        padding: 1.5rem;
+    }
+    
+    .testimonial-text {
+        font-size: 1rem;
+    }
+    
+    .testimonials-slider {
+        height: 350px;
+    }
 }
 
 /* Import Fonts */
@@ -420,37 +672,107 @@ document.addEventListener('DOMContentLoaded', function() {
     // Change slide every 5 seconds
     setInterval(nextSlide, 5000);
     
-    // Add scroll animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
+    // Testimonials functionality
+const testimonialCards = document.querySelectorAll('.testimonial-card');
+const dots = document.querySelectorAll('.dot');
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // Observe feature cards
-    document.querySelectorAll('.feature-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        card.style.transition = 'all 0.6s ease';
-        observer.observe(card);
-    });
+// Only initialize testimonials if they exist on the page
+if (testimonialCards.length > 0 && dots.length > 0) {
+    let currentTestimonial = 0;
+    let testimonialInterval;
     
-    // Observe content card
-    const contentCard = document.querySelector('.content-card');
-    if (contentCard) {
-        contentCard.style.opacity = '0';
-        contentCard.style.transform = 'translateX(30px)';
-        contentCard.style.transition = 'all 0.8s ease';
-        observer.observe(contentCard);
+    function showTestimonial(index) {
+        // Hide all testimonials
+        testimonialCards.forEach(card => card.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        // Show selected testimonial (with bounds checking)
+        if (testimonialCards[index]) {
+            testimonialCards[index].classList.add('active');
+        }
+        if (dots[index]) {
+            dots[index].classList.add('active');
+        }
+        currentTestimonial = index;
     }
+    
+    function nextTestimonial() {
+        const nextIndex = (currentTestimonial + 1) % testimonialCards.length;
+        showTestimonial(nextIndex);
+    }
+    
+    // Start automatic rotation (3 seconds) only if there are multiple testimonials
+    if (testimonialCards.length > 1) {
+        testimonialInterval = setInterval(nextTestimonial, 3000);
+        
+        // Add click event to dots
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                clearInterval(testimonialInterval);
+                showTestimonial(index);
+                // Restart automatic rotation
+                testimonialInterval = setInterval(nextTestimonial, 3000);
+            });
+        });
+        
+        // Pause rotation on hover
+        const testimonialsContainer = document.querySelector('.testimonials-slider');
+        if (testimonialsContainer) {
+            testimonialsContainer.addEventListener('mouseenter', () => {
+                clearInterval(testimonialInterval);
+            });
+            
+            testimonialsContainer.addEventListener('mouseleave', () => {
+                testimonialInterval = setInterval(nextTestimonial, 3000);
+            });
+        }
+    } else {
+        // If only one testimonial, ensure it's visible
+        showTestimonial(0);
+    }
+} else {
+    console.log('No testimonials found on this page');
+}
+
+// Add scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe feature cards
+document.querySelectorAll('.feature-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'all 0.6s ease';
+    observer.observe(card);
+});
+
+// Observe content card
+const contentCard = document.querySelector('.content-card');
+if (contentCard) {
+    contentCard.style.opacity = '0';
+    contentCard.style.transform = 'translateX(30px)';
+    contentCard.style.transition = 'all 0.8s ease';
+    observer.observe(contentCard);
+}
+
+// Observe testimonials - observe all testimonial cards
+document.querySelectorAll('.testimonial-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'all 0.8s ease';
+    observer.observe(card);
+});
 });
 </script>
 @endsection

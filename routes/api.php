@@ -9,11 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-
-route::get('/status', function () {
-    return response()->json(['status' => 'API is running']);
-});
-
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 

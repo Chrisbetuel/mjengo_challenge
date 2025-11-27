@@ -25,4 +25,12 @@ return [
     'ready_to_start' => 'Ready to Start Your Construction Journey?',
     'join_today' => 'Join thousands of successful builders today',
     'start_building_now' => 'Start Building Now',
+    'what_our_users_say' => 'What Our Users Say',
+    'trusted_by_thousands' => 'Trusted by thousands of builders and investors',
+    'share_your_experience' => 'Share Your Experience',
+    'your_rating' => 'Your Rating',
+    'your_testimonial' => 'Your Testimonial',
+    'tell_us_about_experience' => 'Tell us about your experience with Oweru...',
+    'submit_testimonial' => 'Submit Testimonial',
+    'cancel' => 'Cancel',
 ];

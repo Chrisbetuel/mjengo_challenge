@@ -14,7 +14,7 @@
         .navbar-brand {
             font-weight: bold;
             color: #2c3e50;
-        }
+        }p
         .sidebar {
             min-height: calc(100vh - 56px);
             background-color: #2c3e50;
@@ -43,6 +43,41 @@
                 <span class="navbar-text me-3">
                     Welcome, {{ Auth::user()->username }}
                 </span>
+                <div class="dropdown me-3">
+                    <button class="btn btn-outline-light position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="font-size: 0.6em;">
+                            {{ Auth::user()->notifications()->where('is_read', false)->count() }}
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 300px;">
+                        <li><h6 class="dropdown-header">{{ __('messages.notifications') }}</h6></li>
+                        @php
+                            $recentNotifications = Auth::user()->notifications()->orderBy('created_at', 'desc')->limit(5)->get();
+                        @endphp
+                        @if($recentNotifications->count() > 0)
+                            @foreach($recentNotifications as $notification)
+                                <li>
+                                    <a class="dropdown-item {{ $notification->is_read ? '' : 'fw-bold' }}" href="{{ route('notifications.index') }}">
+                                        <div class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <small class="text-truncate d-block">{{ $notification->title }}</small>
+                                                <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                            </div>
+                                            @if(!$notification->is_read)
+                                                <span class="badge bg-primary rounded-pill ms-2">New</span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                </li>
+                            @endforeach
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="{{ route('notifications.index') }}">{{ __('messages.view_all') }}</a></li>
+                        @else
+                            <li><a class="dropdown-item text-center text-muted" href="#">{{ __('messages.no_notifications') }}</a></li>
+                        @endif
+                    </ul>
+                </div>
                 <form method="POST" action="{{ route('lang.switch') }}" class="d-inline me-3" id="lang-switch-form">
                     @csrf
                     <select name="locale" onchange="document.getElementById('lang-switch-form').submit()" class="form-select form-select-sm">

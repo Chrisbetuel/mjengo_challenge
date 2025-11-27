@@ -1,581 +1,514 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Dashboard - Mjengo Challenge')
 
 @section('content')
-<!-- Remove sidebar by ensuring no sidebar content is included -->
 <style>
-    /* Hide sidebar if it exists in layout */
-    .sidebar, 
-    [class*="sidebar"],
-    .col-md-3, 
-    .col-lg-2,
-    .navbar-vertical {
-        display: none !important;
+    /* Dashboard Styles */
+    :root {
+        --oweru-dark: #09172A;
+        --oweru-gold: #C89128;
+        --oweru-light: #F8F8F9;
+        --oweru-blue: #2D3A58;
+        --oweru-secondary: #E5B972;
+        --oweru-gray: #889898;
     }
-    
-    /* Adjust main content to take full width */
-    .main-content,
-    .col-md-9,
-    .col-lg-10,
-    .content-wrapper {
-        width: 100% !important;
-        margin-left: 0 !important;
-        padding-left: 0 !important;
+
+    .dashboard-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .welcome-section {
+        background: linear-gradient(135deg, var(--oweru-dark) 0%, var(--oweru-blue) 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border: none;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin: 0 auto 1rem;
+    }
+
+    .stats-icon.gold { background: var(--oweru-gold); }
+    .stats-icon.blue { background: var(--oweru-blue); }
+    .stats-icon.green { background: var(--oweru-secondary); }
+    .stats-icon.purple { background: var(--oweru-dark); }
+
+    .challenge-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .challenge-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .material-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid var(--oweru-gold);
+        transition: all 0.3s ease;
+    }
+
+    .material-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .feedback-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .btn-oweru-gold {
+        background: var(--oweru-gold);
+        border: none;
+        color: var(--oweru-dark);
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-oweru-gold:hover {
+        background: #b58120;
+        color: var(--oweru-dark);
+        transform: translateY(-2px);
+    }
+
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    .section-title {
+        color: var(--oweru-dark);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--oweru-gray);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .navigation-links {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .nav-link-item {
+        display: inline-block;
+        margin: 0.25rem;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .nav-link-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .nav-link-item.dashboard { background: var(--oweru-gold); color: var(--oweru-dark); }
+    .nav-link-item.challenges { background: var(--oweru-blue); color: white; }
+    .nav-link-item.materials { background: var(--oweru-secondary); color: var(--oweru-dark); }
+    .nav-link-item.groups { background: var(--oweru-dark); color: white; }
+    .nav-link-item.logout { background: #dc3545; color: white; }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem 0;
+        }
+
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+
+        .navigation-links {
+            padding: 1rem;
+        }
+
+        .nav-link-item {
+            display: block;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
     }
 </style>
 
-<!-- Slideshow Background -->
-<div class="slideshow-background">
-    <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');"></div>
-    <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1600585154340-ffff5c5d0e0e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');"></div>
-    <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80');"></div>
-    <div class="overlay"></div>
-</div>
-
-<div class="container-fluid py-4 position-relative min-vh-100">
-    <!-- Oweru Header -->
-    <div class="row mb-4">
-        <div class="col-12 text-center">
-            <div class="oweru-logo mb-2">
-                <span class="oweru-o">O</span>
-                <span class="oweru-text">weru</span>
+<div class="dashboard-container">
+    <div class="container-fluid">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="mb-2">Welcome back, {{ Auth::user()->username }}!</h1>
+                    <p class="mb-0 opacity-75">Here's your progress overview and quick actions.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex align-items-center justify-content-lg-end gap-2">
+                        <i class="fas fa-calendar text-warning"></i>
+                        <span>{{ now()->format('l, F j, Y') }}</span>
+                    </div>
+                </div>
             </div>
-            <p class="text-light mb-0 futura-font">Smart Investments. Safe Returns.</p>
         </div>
-    </div>
 
-    <!-- Navigation Cards -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="navigation-cards">
-                <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="{{ route('dashboard') }}" class="nav-card bg-oweru-gold text-oweru-dark">
-                        <i class="fas fa-chart-line fa-lg mb-2"></i>
-                        <span class="futura-font fw-bold">Dashboard</span>
-                    </a>
-                    <a href="{{ route('challenges.index') }}" class="nav-card bg-oweru-blue text-white">
-                        <i class="fas fa-trophy fa-lg mb-2"></i>
-                        <span class="futura-font fw-bold">Challenges</span>
-                    </a>
-                    <a href="{{ route('materials.index') }}" class="nav-card bg-oweru-secondary text-oweru-dark">
-                        <i class="fas fa-shopping-cart fa-lg mb-2"></i>
-                        <span class="futura-font fw-bold">Materials</span>
-                    </a>
-                    <a href="{{ route('groups.index') }}" class="nav-card bg-oweru-dark text-white">
-                        <i class="fas fa-users fa-lg mb-2"></i>
-                        <span class="futura-font fw-bold">Groups</span>
-                    </a>
-                    @if(Auth::user()->isAdmin())
-                    <a href="{{ route('admin.dashboard') }}" class="nav-card bg-oweru-gray text-white">
-                        <i class="fas fa-cog fa-lg mb-2"></i>
-                        <span class="futura-font fw-bold">Admin Panel</span>
-                    </a>
+        <!-- Navigation Links -->
+        <div class="navigation-links">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                        <a href="{{ route('dashboard') }}" class="nav-link-item dashboard">
+                            <i class="fas fa-chart-line me-2"></i>Dashboard
+                        </a>
+                        <a href="{{ route('challenges.index') }}" class="nav-link-item challenges">
+                            <i class="fas fa-trophy me-2"></i>Challenges
+                        </a>
+                        <a href="{{ route('materials.index') }}" class="nav-link-item materials">
+                            <i class="fas fa-shopping-cart me-2"></i>Materials
+                        </a>
+                        <a href="{{ route('groups.index') }}" class="nav-link-item groups">
+                            <i class="fas fa-users me-2"></i>Groups
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            @csrf
+                            <button type="submit" class="nav-link-item logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon gold">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="mb-2">{{ $activeChallenges->count() }}</h3>
+                    <p class="mb-0 text-muted">Active Challenges</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon blue">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h3 class="mb-2">TZS {{ number_format($totalSavings, 2) }}</h3>
+                    <p class="mb-0 text-muted">Total Savings</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon green">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <h3 class="mb-2">{{ $lipaKidogoPlans->count() }}</h3>
+                    <p class="mb-0 text-muted">Active Plans</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon purple">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="mb-2">{{ $recentPayments->count() }}</h3>
+                    <p class="mb-0 text-muted">Recent Payments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Active Challenges -->
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="challenge-card">
+                    <h4 class="section-title">
+                        <i class="fas fa-star"></i>My Active Challenges
+                    </h4>
+                    @if($activeChallenges->count() > 0)
+                        @foreach($activeChallenges as $participant)
+                            <div class="mb-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">{{ $participant->challenge->name }}</h6>
+                                    <span class="badge bg-success">{{ ucfirst($participant->status) }}</span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ $participant->challenge->description }}</p>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">Daily Amount</small>
+                                        <div class="fw-bold">TZS {{ number_format($participant->challenge->daily_amount, 2) }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Duration</small>
+                                        <div class="fw-bold">{{ $participant->challenge->start_date->format('M d') }} - {{ $participant->challenge->end_date->format('M d') }}</div>
+                                    </div>
+                                </div>
+                                @php
+                                    $paid = $participant->getTotalPaid();
+                                    $totalDays = $participant->challenge->start_date->diffInDays($participant->challenge->end_date);
+                                    $currentDays = $participant->challenge->start_date->diffInDays(now());
+                                    $progress = $totalDays > 0 ? min(100, ($currentDays / $totalDays) * 100) : 0;
+                                @endphp
+                                <div class="mt-2">
+                                    <small class="text-muted">Progress: {{ round($progress) }}% (TZS {{ number_format($paid, 2) }} paid)</small>
+                                    <div class="progress mt-1">
+                                        <div class="progress-bar bg-success" style="width: {{ $progress }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-trophy"></i>
+                            <p>No active challenges yet. Join a challenge to start saving!</p>
+                            <a href="{{ route('challenges.index') }}" class="btn btn-oweru-gold btn-sm">Browse Challenges</a>
+                        </div>
                     @endif
-                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                </div>
+            </div>
+
+            <!-- Available Challenges -->
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="challenge-card">
+                    <h4 class="section-title">
+                        <i class="fas fa-plus-circle"></i>Available Challenges
+                    </h4>
+                    @if($availableChallenges->count() > 0)
+                        @foreach($availableChallenges->take(3) as $challenge)
+                            <div class="mb-3 p-3 border rounded">
+                                <h6 class="mb-1">{{ $challenge->name }}</h6>
+                                <p class="text-muted small mb-2">{{ Str::limit($challenge->description, 80) }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">TZS {{ number_format($challenge->daily_amount, 2) }}/day</span>
+                                    <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-oweru-gold btn-sm">Join Now</a>
+                                </div>
+                            </div>
+                        @endforeach
+                        @if($availableChallenges->count() > 3)
+                            <div class="text-center mt-3">
+                                <a href="{{ route('challenges.index') }}" class="btn btn-outline-primary btn-sm">View All Challenges</a>
+                            </div>
+                        @endif
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <p>No challenges available at the moment.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Payments and Materials Row -->
+        <div class="row mb-4">
+            <!-- Recent Payments -->
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="challenge-card">
+                    <h4 class="section-title">
+                        <i class="fas fa-credit-card"></i>Recent Payments
+                    </h4>
+                    @if($recentPayments->count() > 0)
+                        @foreach($recentPayments as $payment)
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                                <div>
+                                    <div class="fw-bold">{{ $payment->participant->challenge->name }}</div>
+                                    <small class="text-muted">{{ $payment->created_at->format('M d, Y') }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-success">TZS {{ number_format($payment->amount, 2) }}</div>
+                                    <small class="badge bg-{{ $payment->status == 'paid' ? 'success' : 'warning' }}">{{ ucfirst($payment->status) }}</small>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>No recent payments found.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Available Materials -->
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="challenge-card">
+                    <h4 class="section-title">
+                        <i class="fas fa-tools"></i>Available Materials
+                    </h4>
+                    @if($challengeMaterials->count() > 0)
+                        @foreach($challengeMaterials->take(4) as $material)
+                            <div class="material-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ $material->name }}</h6>
+                                        <p class="text-muted small mb-1">{{ Str::limit($material->description, 60) }}</p>
+                                        <div class="fw-bold text-primary">TZS {{ number_format($material->price, 2) }}</div>
+                                    </div>
+                                    <a href="{{ route('materials.show', $material) }}" class="btn btn-oweru-gold btn-sm">View</a>
+                                </div>
+                            </div>
+                        @endforeach
+                        @if($challengeMaterials->count() > 4)
+                            <div class="text-center mt-3">
+                                <a href="{{ route('materials.index') }}" class="btn btn-outline-primary btn-sm">View All Materials</a>
+                            </div>
+                        @endif
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-tools"></i>
+                            <p>No materials available for your challenges.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Lipa Kidogo Plans and Feedback Row -->
+        <div class="row">
+            <!-- Lipa Kidogo Plans -->
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="challenge-card">
+                    <h4 class="section-title">
+                        <i class="fas fa-shopping-bag"></i>My Lipa Kidogo Plans
+                    </h4>
+                    @if($lipaKidogoPlans->count() > 0)
+                        @foreach($lipaKidogoPlans as $plan)
+                            <div class="mb-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">{{ $plan->material->name }}</h6>
+                                    <span class="badge bg-info">{{ ucfirst($plan->status) }}</span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ Str::limit($plan->material->description, 80) }}</p>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <small class="text-muted">Total</small>
+                                        <div class="fw-bold">TZS {{ number_format($plan->total_amount, 2) }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">Paid</small>
+                                        <div class="fw-bold text-success">TZS {{ number_format($plan->getTotalPaid(), 2) }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">Remaining</small>
+                                        <div class="fw-bold text-warning">TZS {{ number_format($plan->total_amount - $plan->getTotalPaid(), 2) }}</div>
+                                    </div>
+                                </div>
+                                @php
+                                    $paid = $plan->getTotalPaid();
+                                    $progress = $plan->total_amount > 0 ? min(100, ($paid / $plan->total_amount) * 100) : 0;
+                                @endphp
+                                <div class="mt-2">
+                                    <small class="text-muted">Progress: {{ round($progress) }}%</small>
+                                    <div class="progress mt-1">
+                                        <div class="progress-bar bg-info" style="width: {{ $progress }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-bag"></i>
+                            <p>No active Lipa Kidogo plans. Start saving for materials!</p>
+                            <a href="{{ route('materials.index') }}" class="btn btn-oweru-gold btn-sm">Browse Materials</a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="feedback-form">
+                    <h4 class="section-title mb-4">
+                        <i class="fas fa-comments"></i>Share Your Feedback
+                    </h4>
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    <form action="{{ route('dashboard.feedback.store') }}" method="POST">
                         @csrf
-                        <button type="submit" class="nav-card bg-danger text-white border-0">
-                            <i class="fas fa-sign-out-alt fa-lg mb-2"></i>
-                            <span class="futura-font fw-bold">Logout</span>
-                        </button>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="type" class="form-label">Feedback Type</label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="">Select type...</option>
+                                <option value="general">General Feedback</option>
+                                <option value="challenge">Challenge Related</option>
+                                <option value="material">Material Purchase</option>
+                                <option value="payment">Payment Issues</option>
+                                <option value="technical">Technical Support</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-oweru-gold w-100">Submit Feedback</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Dashboard Content -->
-    <div class="row g-4">
-        <!-- Total Savings Card -->
-        <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-gold text-oweru-dark text-center">
-                <div class="card-icon mb-3">
-                    <i class="fas fa-piggy-bank fa-2x"></i>
-                </div>
-                <h3 class="futura-font fw-bold mb-2">Total Savings</h3>
-                <p class="display-6 fw-bold mb-0">TZS {{ number_format($totalSavings, 2) }}</p>
-            </div>
-        </div>
-
-        <!-- Active Challenges Count -->
-        <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-blue text-white text-center">
-                <div class="card-icon mb-3">
-                    <i class="fas fa-trophy fa-2x"></i>
-                </div>
-                <h3 class="futura-font fw-bold mb-2">Active Challenges</h3>
-                <p class="display-6 fw-bold mb-0">{{ $activeChallenges->count() }}</p>
-            </div>
-        </div>
-
-        <!-- Lipa Kidogo Plans -->
-        <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-secondary text-oweru-dark text-center">
-                <div class="card-icon mb-3">
-                    <i class="fas fa-calendar-alt fa-2x"></i>
-                </div>
-                <h3 class="futura-font fw-bold mb-2">Active Plans</h3>
-                <p class="display-6 fw-bold mb-0">{{ $lipaKidogoPlans->count() }}</p>
-            </div>
-        </div>
-
-        <!-- Recent Payments -->
-        <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-dark text-white text-center">
-                <div class="card-icon mb-3">
-                    <i class="fas fa-receipt fa-2x"></i>
-                </div>
-                <h3 class="futura-font fw-bold mb-2">Recent Payments</h3>
-                <p class="display-6 fw-bold mb-0">{{ $recentPayments->count() }}</p>
-            </div>
-        </div>
-
-        <!-- Active Challenges Section -->
-        <div class="col-12 col-lg-6">
-            <div class="dashboard-section">
-                <div class="section-header d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="futura-font fw-bold text-white mb-0">
-                        <i class="fas fa-trophy me-2"></i>Active Challenges
-                    </h3>
-                    <a href="{{ route('challenges.index') }}" class="btn btn-sm btn-oweru-gold futura-font">View All</a>
-                </div>
-                
-                @if($activeChallenges->count() > 0)
-                    <div class="content-cards">
-                        @foreach($activeChallenges as $participant)
-                            <div class="content-card">
-                                <div class="card-header d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="futura-font fw-bold text-oweru-dark mb-0">{{ $participant->challenge->name }}</h5>
-                                    <span class="badge bg-oweru-gold text-oweru-dark futura-font">{{ ucfirst($participant->status) }}</span>
-                                </div>
-                                <p class="text-oweru-gray poppins-font mb-2">{{ $participant->challenge->description }}</p>
-                                <div class="card-details">
-                                    <div class="detail-item">
-                                        <i class="fas fa-bullseye me-1"></i>
-                                        <span class="poppins-font">Target: TZS {{ number_format($participant->challenge->target_amount, 2) }}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-clock me-1"></i>
-                                        <span class="poppins-font">Duration: {{ $participant->challenge->duration }} months</span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-trophy fa-3x text-oweru-gray mb-3"></i>
-                        <p class="text-oweru-gray poppins-font mb-3">No active challenges found.</p>
-                        <a href="{{ route('challenges.index') }}" class="btn btn-oweru-gold futura-font">Explore Challenges</a>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Recent Payments Section -->
-        <div class="col-12 col-lg-6">
-            <div class="dashboard-section">
-                <div class="section-header d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="futura-font fw-bold text-white mb-0">
-                        <i class="fas fa-receipt me-2"></i>Recent Payments
-                    </h3>
-                    <a href="#" class="btn btn-sm btn-oweru-gold futura-font">View All</a>
-                </div>
-                
-                @if($recentPayments->count() > 0)
-                    <div class="content-cards">
-                        @foreach($recentPayments as $payment)
-                            <div class="content-card">
-                                <div class="card-header d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="futura-font fw-bold text-oweru-dark mb-0">Payment #{{ $payment->id }}</h5>
-                                    <span class="badge bg-success text-white futura-font">{{ ucfirst($payment->status) }}</span>
-                                </div>
-                                <div class="card-details">
-                                    <div class="detail-item">
-                                        <i class="fas fa-calendar me-1"></i>
-                                        <span class="poppins-font">{{ $payment->created_at->format('M d, Y') }}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-money-bill me-1"></i>
-                                        <span class="poppins-font">Amount: TZS {{ number_format($payment->amount, 2) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-receipt fa-3x text-oweru-gray mb-3"></i>
-                        <p class="text-oweru-gray poppins-font mb-3">No recent payments found.</p>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Lipa Kidogo Plans Section -->
-        <div class="col-12">
-            <div class="dashboard-section">
-                <div class="section-header d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="futura-font fw-bold text-white mb-0">
-                        <i class="fas fa-calendar-alt me-2"></i>Lipa Kidogo Plans
-                    </h3>
-                    <a href="{{ route('materials.index') }}" class="btn btn-sm btn-oweru-gold futura-font">View All</a>
-                </div>
-                
-                @if($lipaKidogoPlans->count() > 0)
-                    <div class="row g-3">
-                        @foreach($lipaKidogoPlans as $plan)
-                            <div class="col-12 col-md-6 col-xl-4">
-                                <div class="plan-card">
-                                    <div class="plan-header d-flex justify-content-between align-items-start mb-3">
-                                        <h5 class="futura-font fw-bold text-oweru-dark mb-0">{{ $plan->material->name }}</h5>
-                                        <span class="badge bg-oweru-blue text-white futura-font">{{ ucfirst($plan->status) }}</span>
-                                    </div>
-                                    <p class="text-oweru-gray poppins-font mb-3 small">{{ $plan->material->description }}</p>
-                                    <div class="plan-details">
-                                        <div class="detail-row">
-                                            <span class="poppins-font">Total Amount:</span>
-                                            <span class="futura-font fw-bold">TZS {{ number_format($plan->total_amount, 2) }}</span>
-                                        </div>
-                                        <div class="detail-row">
-                                            <span class="poppins-font">Installment:</span>
-                                            <span class="futura-font fw-bold">TZS {{ number_format($plan->installment_amount, 2) }}</span>
-                                        </div>
-                                        <div class="detail-row">
-                                            <span class="poppins-font">Installments:</span>
-                                            <span class="futura-font fw-bold">{{ $plan->num_installments }}</span>
-                                        </div>
-                                        <div class="detail-row">
-                                            <span class="poppins-font">Started:</span>
-                                            <span class="futura-font fw-bold">{{ $plan->start_date->format('M d, Y') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="empty-state text-center py-5">
-                        <i class="fas fa-calendar-alt fa-3x text-oweru-gray mb-3"></i>
-                        <p class="text-oweru-gray poppins-font mb-3">No Lipa Kidogo plans found.</p>
-                        <a href="{{ route('materials.index') }}" class="btn btn-oweru-gold futura-font">Browse Materials</a>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Groups Section -->
-        <div class="col-12">
-            <div class="dashboard-section">
-                <div class="section-header d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="futura-font fw-bold text-white mb-0">
-                        <i class="fas fa-users me-2"></i>Groups
-                    </h3>
-                    <a href="{{ route('groups.create') }}" class="btn btn-sm btn-oweru-gold futura-font">Create Group</a>
-                </div>
-                
-                <div class="empty-state text-center py-5">
-                    <i class="fas fa-users fa-3x text-oweru-gray mb-3"></i>
-                    <p class="text-oweru-gray poppins-font mb-3">You haven't joined any groups yet.</p>
-                    <p class="text-oweru-gray poppins-font mb-4">Join or create groups to collaborate with other users on challenges and savings goals.</p>
-                    <a href="{{ route('groups.create') }}" class="btn btn-oweru-gold futura-font">Create Your First Group</a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
-
-<style>
-/* Oweru Brand Colors */
-:root {
-    --oweru-dark: #09172A;
-    --oweru-gold: #C89128;
-    --oweru-light: #F8F8F9;
-    --oweru-blue: #2D3A58;
-    --oweru-secondary: #E5B972;
-    --oweru-gray: #889898;
-}
-
-.bg-oweru-dark { background-color: var(--oweru-dark) !important; }
-.bg-oweru-gold { background-color: var(--oweru-gold) !important; }
-.bg-oweru-light { background-color: var(--oweru-light) !important; }
-.bg-oweru-blue { background-color: var(--oweru-blue) !important; }
-.bg-oweru-secondary { background-color: var(--oweru-secondary) !important; }
-.bg-oweru-gray { background-color: var(--oweru-gray) !important; }
-
-.text-oweru-dark { color: var(--oweru-dark) !important; }
-.text-oweru-gold { color: var(--oweru-gold) !important; }
-.text-oweru-light { color: var(--oweru-light) !important; }
-.text-oweru-blue { color: var(--oweru-blue) !important; }
-.text-oweru-secondary { color: var(--oweru-secondary) !important; }
-.text-oweru-gray { color: var(--oweru-gray) !important; }
-
-.btn-oweru-gold {
-    background-color: var(--oweru-gold);
-    border-color: var(--oweru-gold);
-    color: var(--oweru-dark);
-    font-weight: 600;
-}
-
-.btn-oweru-gold:hover {
-    background-color: #b58120;
-    border-color: #b58120;
-    color: var(--oweru-dark);
-}
-
-/* Oweru Logo */
-.oweru-logo {
-    font-family: 'Futura PT', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    display: inline-block;
-}
-
-.oweru-o {
-    color: var(--oweru-gold);
-    font-size: 3rem;
-}
-
-.oweru-text {
-    color: var(--oweru-light);
-    font-weight: 600;
-}
-
-/* Typography */
-.futura-font {
-    font-family: 'Futura PT', Arial, sans-serif;
-}
-
-.poppins-font {
-    font-family: 'Poppins', Arial, sans-serif;
-}
-
-/* Background Slideshow */
-.slideshow-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-}
-
-.slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-}
-
-.slide.active {
-    opacity: 1;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(9, 23, 42, 0.85) 0%, rgba(45, 58, 88, 0.8) 100%);
-}
-
-/* Navigation Cards */
-.nav-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 120px;
-    height: 100px;
-    border-radius: 12px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.nav-card:hover {
-    transform: translateY(-5px);
-    text-decoration: none;
-    border-color: var(--oweru-gold);
-}
-
-/* Dashboard Cards */
-.dashboard-card {
-    padding: 2rem 1rem;
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-}
-
-.card-icon {
-    opacity: 0.9;
-}
-
-/* Dashboard Sections */
-.dashboard-section {
-    background: rgba(248, 248, 249, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 2rem;
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.section-header {
-    border-bottom: 2px solid var(--oweru-gold);
-    padding-bottom: 1rem;
-}
-
-/* Content Cards */
-.content-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.content-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    border-left: 4px solid var(--oweru-gold);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-}
-
-.content-card:hover {
-    transform: translateX(5px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-}
-
-.plan-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    border-top: 4px solid var(--oweru-blue);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    height: 100%;
-    transition: all 0.3s ease;
-}
-
-.plan-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-}
-
-/* Card Details */
-.card-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-}
-
-.plan-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    padding: 0.25rem 0;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-.detail-row:last-child {
-    border-bottom: none;
-}
-
-/* Empty States */
-.empty-state {
-    padding: 3rem 2rem;
-    text-align: center;
-    background: rgba(255,255,255,0.5);
-    border-radius: 10px;
-    border: 2px dashed var(--oweru-gray);
-}
-
-/* Full width layout - no sidebar */
-.container-fluid {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .oweru-logo {
-        font-size: 2rem;
-    }
-    
-    .oweru-o {
-        font-size: 2.5rem;
-    }
-    
-    .nav-card {
-        width: 100px;
-        height: 90px;
-    }
-    
-    .dashboard-card {
-        padding: 1.5rem 1rem;
-    }
-    
-    .display-6 {
-        font-size: 1.8rem;
-    }
-}
-
-/* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Slideshow functionality
-    const slides = document.querySelectorAll('.slide');
-    let currentSlide = 0;
-    
-    function nextSlide() {
-        slides[currentSlide].classList.remove('active');
-        currentSlide = (currentSlide + 1) % slides.length;
-        slides[currentSlide].classList.add('active');
-    }
-    
-    // Change slide every 5 seconds
-    setInterval(nextSlide, 5000);
-    
-    // Force full width layout
-    document.body.style.overflowX = 'hidden';
-    const mainContainer = document.querySelector('.container-fluid');
-    if (mainContainer) {
-        mainContainer.style.maxWidth = '100%';
-        mainContainer.style.marginLeft = '0';
-        mainContainer.style.marginRight = '0';
-    }
-});
-</script>
 @endsection
