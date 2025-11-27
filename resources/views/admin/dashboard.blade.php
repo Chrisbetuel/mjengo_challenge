@@ -479,6 +479,15 @@
                                 <p class="text-muted small mb-0">Analytics & insights</p>
                             </a>
                         </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{{ route('admin.notifications.index') }}" class="quick-action-card text-decoration-none">
+                                <div class="action-icon" style="background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1">Manage Notifications</h6>
+                                <p class="text-muted small mb-0">Send user notifications</p>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
