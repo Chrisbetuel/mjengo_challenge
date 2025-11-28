@@ -13,9 +13,13 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\ChatbotController;
 
 // Home route
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Public chatbot endpoints
+Route::get('/api/chatbot/suggestions', [ChatbotController::class, 'getSuggestions'])->name('chatbot.suggestions');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
@@ -72,6 +76,14 @@ Route::middleware('auth')->group(function () {
 
     // Testimonials
     Route::post('/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+
+    // Chatbot API Routes (for authenticated users)
+    Route::prefix('api/chatbot')->name('chatbot.')->group(function () {
+        Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
+        Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
+        Route::post('/rate', [ChatbotController::class, 'rateResponse'])->name('rate');
+        Route::post('/clear', [ChatbotController::class, 'clearHistory'])->name('clear');
+    });
 });
 
 // Admin routes
