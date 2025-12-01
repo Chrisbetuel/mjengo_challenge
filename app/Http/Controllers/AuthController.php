@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLoginForm()
     {
         return view('auth.login');
     }
@@ -32,7 +32,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function showRegister()
+    public function showRegistrationForm()
     {
         return view('auth.register');
     }

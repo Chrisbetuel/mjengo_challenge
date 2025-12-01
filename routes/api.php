@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Chatbot routes (accessible from web with auth)
-Route::middleware('auth')->prefix('chatbot')->name('chatbot.')->group(function () {
+Route::middleware('auth')->prefix('chatbot')->name('chatbot')->group(function () {
     Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
     Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
     Route::post('/rate', [ChatbotController::class, 'rateResponse'])->name('rate');

@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-oweru-dark text-white">
+                <div class="card-header bg-oweru-dark text-black">
                     <h4 class="mb-0 futura-font">
                         <i class="fas fa-comments me-2"></i>Manage Testimonials
                     </h4>
@@ -34,21 +34,19 @@
                                 @foreach($testimonials as $testimonial)
                                 <tr>
                                     <td>{{ $testimonial->user->username }}</td>
-                                    <td>{{ Str::limit($testimonial->content, 100) }}</td>
+                                    <td>{{ Str::limit($testimonial->message, 100) }}</td>
                                     <td>
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <i class="fas fa-star {{ $i <= $testimonial->rating ? 'text-warning' : 'text-muted' }}"></i>
-                                        @endfor
+                                        <span class="text-muted">N/A</span>
                                     </td>
                                     <td>
-                                        @if($testimonial->is_approved)
+                                        @if($testimonial->status === 'resolved')
                                             <span class="badge bg-success">Approved</span>
                                         @else
                                             <span class="badge bg-warning">Pending</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($testimonial->is_featured)
+                                        @if($testimonial->admin_response === 'featured')
                                             <span class="badge bg-primary">Featured</span>
                                         @else
                                             <span class="badge bg-secondary">Normal</span>
@@ -57,7 +55,7 @@
                                     <td>{{ $testimonial->created_at->format('M d, Y') }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            @if(!$testimonial->is_approved)
+                                            @if($testimonial->status !== 'resolved')
                                                 <form action="{{ route('admin.testimonials.approve', $testimonial) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-success btn-sm" title="Approve">
@@ -66,7 +64,7 @@
                                                 </form>
                                             @endif
 
-                                            @if($testimonial->is_approved && !$testimonial->is_featured)
+                                            @if($testimonial->status === 'resolved' && $testimonial->admin_response !== 'featured')
                                                 <form action="{{ route('admin.testimonials.feature', $testimonial) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-primary btn-sm" title="Feature">
@@ -75,7 +73,7 @@
                                                 </form>
                                             @endif
 
-                                            @if($testimonial->is_featured)
+                                            @if($testimonial->admin_response === 'featured')
                                                 <form action="{{ route('admin.testimonials.unfeature', $testimonial) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-secondary btn-sm" title="Unfeature">
@@ -87,7 +85,7 @@
                                             <form action="{{ route('admin.testimonials.destroy', $testimonial) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm" 
+                                                <button type="submit" class="btn btn-danger btn-sm"
                                                         onclick="return confirm('Are you sure you want to delete this testimonial?')"
                                                         title="Delete">
                                                     <i class="fas fa-trash"></i>

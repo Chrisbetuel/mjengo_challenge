@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Challenge;
 use App\Models\Participant;
 use App\Models\Payment;
+use App\Models\ActivityLog;
+use App\Models\Notification;
+use App\Services\SelcomService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +45,7 @@ class ChallengeController extends Controller
 
         $isParticipant = Auth::check() ? $challenge->participants()
             ->where('user_id', Auth::id())
-            ->where('participants.status', 'active')
+            ->where('status', 'active')
             ->exists() : false;
 
         $userParticipant = Auth::check() ? $challenge->participants()
@@ -113,29 +116,115 @@ class ChallengeController extends Controller
             ->where('participants.status', 'active')
             ->firstOrFail();
 
-        // Check if payment already exists for today
-        $existingPayment = Payment::where('participant_id', $participant->id)
-            ->whereDate('payment_date', today())
-            ->first();
 
-        if ($existingPayment) {
-            return redirect()->back()->with('error', 'You have already made a payment for today.');
+
+        $paymentType = $request->payment_type ?? 'direct';
+        $selcomService = new SelcomService();
+
+        try {
+            if ($paymentType === 'lipa_kidogo') {
+                return $this->initiateLipaKidogoPayment($participant, $challenge, $selcomService);
+            } else {
+                return $this->initiateDirectPayment($participant, $challenge, $selcomService);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Payment initiation failed: ' . $e->getMessage());
         }
+    }
 
+    private function initiateDirectPayment(Participant $participant, Challenge $challenge, SelcomService $selcomService)
+    {
         // Create payment record
         $payment = Payment::create([
             'participant_id' => $participant->id,
             'amount' => $challenge->daily_amount,
             'payment_date' => today(),
             'status' => 'pending',
-            'payment_method' => $request->payment_method ?? 'mobile_money',
+            'payment_method' => 'selcom',
+            'payment_type' => 'direct',
         ]);
 
-        // Process payment (this would integrate with actual payment gateway)
-        // For now, we'll simulate successful payment
-        $this->processPayment($payment);
+        // Generate unique order ID
+        $orderId = 'CHALLENGE_' . $participant->id . '_' . time();
 
-        return redirect()->back()->with('success', 'Payment initiated successfully!');
+        try {
+            // Initiate Selcom payment
+            $result = $selcomService->initiatePayment(
+                $orderId,
+                $challenge->daily_amount,
+                $participant->user->phone ?? '',
+                'Challenge Payment - ' . $challenge->title,
+                route('selcom.callback'),
+                $participant->user->email ?? null,
+                $participant->user->name ?? null,
+                route('challenges.show', $challenge->id),
+                route('challenges.show', $challenge->id)
+            );
+
+            $payment->update([
+                'selcom_order_id' => $orderId,
+                'transaction_id' => $orderId,
+            ]);
+
+            return redirect()->away($result['payment_url']);
+        } catch (\Exception $e) {
+            $payment->update(['status' => 'failed']);
+            return redirect()->back()->with('error', 'Payment initiation failed: ' . $e->getMessage());
+        }
+    }
+
+    private function initiateLipaKidogoPayment(Participant $participant, Challenge $challenge, SelcomService $selcomService)
+    {
+        // Calculate total challenge amount and installments
+        $totalAmount = $challenge->daily_amount * $challenge->duration_days;
+        $installments = $challenge->duration_days; // One payment per day
+        $installmentAmount = $challenge->daily_amount;
+
+        // Create payment record for first installment
+        $payment = Payment::create([
+            'participant_id' => $participant->id,
+            'amount' => $challenge->daily_amount,
+            'payment_date' => today(),
+            'status' => 'pending',
+            'payment_method' => 'selcom',
+            'payment_type' => 'lipa_kidogo',
+            'installment_number' => 1,
+            'total_installments' => $installments,
+        ]);
+
+        // Generate unique order ID
+        $orderId = 'LIPAKIDOGO_' . $participant->id . '_' . time();
+
+        try {
+            // Initiate lipa kidogo payment
+            $result = $selcomService->initiateLipaKidogo(
+                $orderId,
+                $totalAmount,
+                $installmentAmount,
+                $installments,
+                $participant->user->phone ?? '',
+                $participant->user->email ?? null,
+                $participant->user->name ?? null,
+                route('challenges.show', $challenge->id),
+                route('challenges.show', $challenge->id)
+            );
+
+            // Check if response contains payment URL
+            if (isset($result['payment_url']) && !empty($result['payment_url'])) {
+                $payment->update([
+                    'selcom_order_id' => $orderId,
+                    'transaction_id' => $orderId,
+                ]);
+
+                return redirect()->away($result['payment_url']);
+            } else {
+                $payment->update(['status' => 'failed']);
+                return redirect()->back()->with('error', 'Lipa Kidogo payment initiation failed: Invalid response from payment gateway');
+            }
+        } catch (\Exception $e) {
+            $payment->update(['status' => 'failed']);
+            return redirect()->back()->with('error', 'Lipa Kidogo payment initiation failed: ' . $e->getMessage());
+        }
     }
 
     private function processPayment(Payment $payment)
@@ -160,5 +249,65 @@ class ChallengeController extends Controller
             'type' => 'payment',
             'data' => ['amount' => $payment->amount, 'challenge_id' => $payment->participant->challenge_id],
         ]);
+    }
+
+    /**
+     * Handle Selcom payment callback
+     */
+    public function handleSelcomCallback(Request $request)
+    {
+        $selcomService = new SelcomService();
+
+        if (!$selcomService->validateCallback($request->all())) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid callback data'], 400);
+        }
+
+        $orderId = $request->order_id;
+        $status = $request->status;
+        $transId = $request->transid ?? null;
+
+        // Find payment by Selcom order ID
+        $payment = Payment::where('selcom_order_id', $orderId)->first();
+
+        if (!$payment) {
+            return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
+        }
+
+        // Update payment status based on Selcom response
+        if ($status === 'success' || $status === 'paid') {
+            $payment->update([
+                'status' => 'paid',
+                'selcom_trans_id' => $transId,
+                'paid_at' => now(),
+            ]);
+
+            // Log activity
+            ActivityLog::logPayment($payment->participant->user_id, $payment->amount, $payment->participant->challenge_id);
+
+            // Send notification
+            Notification::create([
+                'user_id' => $payment->participant->user_id,
+                'title' => 'Payment Successful',
+                'message' => 'Your payment of TZS ' . number_format($payment->amount, 2) . ' was processed successfully.',
+                'type' => 'payment',
+                'data' => ['amount' => $payment->amount, 'challenge_id' => $payment->participant->challenge_id],
+            ]);
+        } elseif ($status === 'failed') {
+            $payment->update([
+                'status' => 'failed',
+                'selcom_trans_id' => $transId,
+            ]);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * Handle Selcom webhook
+     */
+    public function handleSelcomWebhook(Request $request)
+    {
+        // Webhook handling (similar to callback but for background processing)
+        return $this->handleSelcomCallback($request);
     }
 }

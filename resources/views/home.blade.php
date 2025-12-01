@@ -15,7 +15,7 @@
 <div class="container py-5 position-relative">
     <!-- Language Switcher -->
     <div class="language-switcher text-end mb-3">
-        <form id="language-form" action="{{ route('lang.switch') }}" method="POST" class="d-inline">
+        <form id="language-form" action="{{ route('language.switch') }}" method="POST" class="d-inline">
             @csrf
             <select name="locale" onchange="document.getElementById('language-form').submit()" class="form-select d-inline w-auto">
                 <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>English</option>
@@ -129,11 +129,12 @@
                     <div class="testimonial-card {{ $loop->first ? 'active' : '' }}">
                         <div class="testimonial-content">
                             <div class="rating-stars mb-3">
+                                <!-- Rating not available in feedback, show default stars -->
                                 @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star {{ $i <= $testimonial->rating ? 'text-oweru-gold' : 'text-oweru-gray' }}"></i>
+                                    <i class="fas fa-star text-oweru-gold"></i>
                                 @endfor
                             </div>
-                            <p class="testimonial-text">"{{ $testimonial->content }}"</p>
+                            <p class="testimonial-text">"{{ $testimonial->message }}"</p>
                             <div class="testimonial-author">
                                 <div class="author-avatar">
                                     {{ strtoupper(substr($testimonial->user->username, 0, 1)) }}

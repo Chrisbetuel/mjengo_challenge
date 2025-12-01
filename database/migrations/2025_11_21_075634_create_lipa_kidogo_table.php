@@ -13,8 +13,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('material_id')->constrained()->onDelete('cascade');
             $table->decimal('total_amount', 10, 2);
+            $table->decimal('paid_amount', 10, 2)->default(0);
             $table->decimal('installment_amount', 10, 2);
-            $table->integer('num_installments');
+            $table->integer('num_installments')->nullable();
             $table->date('start_date');
             $table->enum('user_type', ['businessman', 'employed'])->nullable();
             $table->enum('payment_duration', ['daily', 'weekly', 'monthly'])->default('daily');

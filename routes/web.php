@@ -2,118 +2,164 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminNotificationController;
-use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\GroupController;
-use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\TestimonialController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\Api\AuthController as ApiAuthController;
+use App\Http\Controllers\Api\ChallengeController as ApiChallengeController;
+use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
+use App\Http\Controllers\Api\MaterialController as ApiMaterialController;
+use App\Http\Controllers\Api\PenaltyController as ApiPenaltyController;
+use App\Http\Controllers\Api\ChatbotController as ApiChatbotController;
 
-// Home route
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Authentication routes
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
-    Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+// Authentication Routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
-    // Password reset routes
-    Route::get('/forgot-password', [ResetPasswordController::class, 'showForgotPassword'])->name('password.forgot');
-    Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLink'])->name('password.email');
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetPassword'])->name('password.reset');
-    Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
-});
+// Password Reset Routes
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.forgot');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+// Language Routes
+Route::post('/language/switch', [LanguageController::class, 'switchLanguage'])->name('language.switch');
 
-// Language switching route
-Route::post('/lang/switch', [LanguageController::class, 'switchLanguage'])->name('lang.switch');
-
-// Protected routes (require authentication)
-Route::middleware('auth')->group(function () {
-    // Dashboard
+// Protected Routes (Require Authentication)
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/feedback', [DashboardController::class, 'storeFeedback'])->name('dashboard.feedback.store');
 
+    // Testimonials
+    Route::post('/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+
+    // Materials
+    Route::get('/materials', [MaterialController::class, 'index'])->name('materials.index');
+    Route::get('/materials/{material}', [MaterialController::class, 'show'])->name('materials.show');
+
     // Challenges
     Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenges.index');
-    Route::get('/challenges/{id}', [ChallengeController::class, 'show'])->name('challenges.show');
-    Route::post('/challenges/{id}/join', [ChallengeController::class, 'join'])->name('challenges.join');
-    Route::post('/challenges/{id}/payment', [ChallengeController::class, 'makePayment'])->name('challenges.payment');
+    Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show');
+    Route::post('/challenges/{challenge}/participate', [ChallengeController::class, 'participate'])->name('challenges.participate');
+    Route::post('/challenges/{challengeId}/payment', [ChallengeController::class, 'makePayment'])->name('challenges.payment');
 
     // Groups
     Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
     Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
     Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
     Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
-    Route::post('/groups/{group}/join', [GroupController::class, 'join'])->name('groups.join');
-    Route::post('/groups/{group}/leave', [GroupController::class, 'leave'])->name('groups.leave');
-    Route::post('/groups/{group}/approve/{memberId}', [GroupController::class, 'approveMember'])->name('groups.approve');
-    Route::post('/groups/{group}/reject/{memberId}', [GroupController::class, 'rejectMember'])->name('groups.reject');
+    Route::get('/groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
+    Route::put('/groups/{group}', [GroupController::class, 'update'])->name('groups.update');
+    Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
 
-    // Materials
-    Route::get('/materials', [MaterialController::class, 'index'])->name('materials.index');
-    Route::get('/materials/{id}', [MaterialController::class, 'show'])->name('materials.show');
-    Route::post('/materials/{id}/direct-purchase', [MaterialController::class, 'directPurchase'])->name('materials.direct-purchase');
-    Route::post('/materials/{id}/lipa-kidogo', [MaterialController::class, 'lipaKidogoPurchase'])->name('materials.lipa-kidogo');
+    // Direct Purchases
+    Route::get('/direct-purchases', [MaterialController::class, 'directPurchases'])->name('direct_purchases.index');
+    Route::get('/direct-purchases/{purchase}', [MaterialController::class, 'showDirectPurchase'])->name('direct_purchases.show');
+    Route::post('/direct-purchases', [MaterialController::class, 'storeDirectPurchase'])->name('direct_purchases.store');
+
+    // Lipa Kidogo
+    Route::get('/lipa-kidogo', [MaterialController::class, 'lipaKidogo'])->name('lipa_kidogo.index');
+    Route::get('/lipa-kidogo/{plan}', [MaterialController::class, 'showLipaKidogo'])->name('lipa_kidogo.show');
+    Route::post('/lipa-kidogo', [MaterialController::class, 'storeLipaKidogo'])->name('lipa_kidogo.store');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-
-    // Testimonials
-    Route::post('/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
 
-// Admin routes
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
-    Route::get('/challenges', [AdminController::class, 'challenges'])->name('admin.challenges');
-    Route::get('/challenges/create', [AdminController::class, 'createChallenge'])->name('admin.challenges.create');
-    Route::post('/challenges', [AdminController::class, 'storeChallenge'])->name('admin.challenges.store');
-    Route::get('/materials', [AdminController::class, 'materials'])->name('admin.materials');
-    Route::get('/materials/create', [AdminController::class, 'createMaterial'])->name('admin.materials.create');
-    Route::post('/materials', [AdminController::class, 'storeMaterial'])->name('admin.materials.store');
-    Route::get('/materials/{id}/edit', [AdminController::class, 'editMaterial'])->name('admin.materials.edit');
-    Route::put('/materials/{id}', [AdminController::class, 'updateMaterial'])->name('admin.materials.update');
-    Route::delete('/materials/{id}', [AdminController::class, 'deleteMaterial'])->name('admin.materials.delete');
-    Route::patch('/materials/{id}/toggle', [AdminController::class, 'toggleMaterialStatus'])->name('admin.materials.toggle');
-    Route::get('/penalties', [AdminController::class, 'penalties'])->name('admin.penalties');
-    Route::patch('/penalties/{id}/resolve', [AdminController::class, 'resolvePenalty'])->name('admin.penalties.resolve');
-    Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
-    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
-    Route::get('/groups', [AdminController::class, 'groups'])->name('admin.groups');
-    Route::patch('/groups/{id}/approve', [AdminController::class, 'approveGroup'])->name('admin.groups.approve');
-    Route::patch('/groups/{id}/reject', [AdminController::class, 'rejectGroup'])->name('admin.groups.reject');
-    Route::patch('/groups/{id}/deactivate', [AdminController::class, 'deactivateGroup'])->name('admin.groups.deactivate');
-    Route::get('/groups/{id}/edit', [AdminController::class, 'editGroup'])->name('admin.groups.edit');
-    Route::put('/groups/{id}', [AdminController::class, 'updateGroup'])->name('admin.groups.update');
+// Admin Routes (Require Admin Authentication)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Admin Notification Management
-    Route::prefix('notifications')->name('admin.notifications.')->group(function () {
-        Route::get('/', [AdminNotificationController::class, 'index'])->name('index');
-        Route::get('/create', [AdminNotificationController::class, 'create'])->name('create');
-        Route::post('/', [AdminNotificationController::class, 'store'])->name('store');
-        Route::get('/{notification}', [AdminNotificationController::class, 'show'])->name('show');
-        Route::delete('/{notification}', [AdminNotificationController::class, 'destroy'])->name('destroy');
-        Route::delete('/bulk-delete', [AdminNotificationController::class, 'bulkDelete'])->name('bulk-delete');
-        Route::post('/send-to-all', [AdminNotificationController::class, 'sendToAll'])->name('send-to-all');
-    });
+    // User Management
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+    Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+    Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
 
-    // Testimonials
-    Route::get('/testimonials', [TestimonialController::class, 'adminIndex'])->name('admin.testimonials');
-    Route::patch('/testimonials/{testimonial}/approve', [TestimonialController::class, 'approve'])->name('admin.testimonials.approve');
-    Route::patch('/testimonials/{testimonial}/reject', [TestimonialController::class, 'reject'])->name('admin.testimonials.reject');
-    Route::patch('/testimonials/{testimonial}/feature', [TestimonialController::class, 'feature'])->name('admin.testimonials.feature');
-    Route::patch('/testimonials/{testimonial}/unfeature', [TestimonialController::class, 'unfeature'])->name('admin.testimonials.unfeature');
-    Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy'])->name('admin.testimonials.destroy');
+    // Material Management
+    Route::get('/materials', [AdminController::class, 'materials'])->name('materials');
+    Route::get('/materials/create', [AdminController::class, 'createMaterial'])->name('materials.create');
+    Route::post('/materials', [AdminController::class, 'storeMaterial'])->name('materials.store');
+    Route::get('/materials/{material}/edit', [AdminController::class, 'editMaterial'])->name('materials.edit');
+    Route::put('/materials/{material}', [AdminController::class, 'updateMaterial'])->name('materials.update');
+    Route::delete('/materials/{material}', [AdminController::class, 'destroyMaterial'])->name('materials.destroy');
+
+    // Challenge Management
+    Route::get('/challenges', [AdminController::class, 'challenges'])->name('challenges');
+    Route::get('/challenges/create', [AdminController::class, 'createChallenge'])->name('challenges.create');
+    Route::post('/challenges', [AdminController::class, 'storeChallenge'])->name('challenges.store');
+    Route::get('/challenges/{challenge}/edit', [AdminController::class, 'editChallenge'])->name('challenges.edit');
+    Route::put('/challenges/{challenge}', [AdminController::class, 'updateChallenge'])->name('challenges.update');
+    Route::delete('/challenges/{challenge}', [AdminController::class, 'destroyChallenge'])->name('challenges.destroy');
+
+    // Group Management
+    Route::get('/groups', [AdminController::class, 'groups'])->name('groups');
+    Route::get('/groups/create', [AdminController::class, 'createGroup'])->name('groups.create');
+    Route::post('/groups', [AdminController::class, 'storeGroup'])->name('groups.store');
+    Route::get('/groups/{id}/edit', [AdminController::class, 'editGroup'])->name('groups.edit');
+    Route::put('/groups/{id}', [AdminController::class, 'updateGroup'])->name('groups.update');
+    Route::delete('/groups/{id}', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
+
+    // Admin Direct Purchases and Lipa Kidogo Management
+    Route::get('/direct-purchases', [AdminController::class, 'directPurchases'])->name('direct-purchases');
+    Route::get('/lipa-kidogo-plans', [AdminController::class, 'lipaKidogoPlans'])->name('lipa-kidogo-plans');
+
+    // Payment Management
+    Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
+    Route::get('/payments/{payment}', [AdminController::class, 'showPayment'])->name('payments.show');
+
+    // Penalty Management
+    Route::get('/penalties', [AdminController::class, 'penalties'])->name('penalties');
+    Route::get('/penalties/{penalty}', [AdminController::class, 'showPenalty'])->name('penalties.show');
+
+    // Notification Management
+    Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/create', [AdminNotificationController::class, 'create'])->name('notifications.create');
+    Route::post('/notifications', [AdminNotificationController::class, 'store'])->name('notifications.store');
+    Route::get('/notifications/{notification}', [AdminNotificationController::class, 'show'])->name('notifications.show');
+    Route::get('/notifications/{notification}/edit', [AdminNotificationController::class, 'edit'])->name('notifications.edit');
+    Route::put('/notifications/{notification}', [AdminNotificationController::class, 'update'])->name('notifications.update');
+    Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    // Testimonial Management
+    Route::get('/testimonials', [TestimonialController::class, 'adminIndex'])->name('testimonials');
+    Route::post('/testimonials/{feedback}/approve', [TestimonialController::class, 'approve'])->name('testimonials.approve');
+    Route::post('/testimonials/{feedback}/reject', [TestimonialController::class, 'reject'])->name('testimonials.reject');
+    Route::post('/testimonials/{feedback}/feature', [TestimonialController::class, 'feature'])->name('testimonials.feature');
+    Route::post('/testimonials/{feedback}/unfeature', [TestimonialController::class, 'unfeature'])->name('testimonials.unfeature');
+    Route::delete('/testimonials/{feedback}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
+
+    // Reports
+    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
 });
+
+// Chatbot Routes
+Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
+Route::post('/chatbot/message', [ChatbotController::class, 'sendMessage'])->name('chatbot.message');

@@ -311,6 +311,58 @@
                                         <div class="progress-bar bg-success" style="width: {{ $progress }}%"></div>
                                     </div>
                                 </div>
+                                <div class="mt-3 d-flex gap-2">
+                                    <a href="{{ route('challenges.show', $participant->challenge) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#paymentModal{{ $participant->id }}">
+                                        <i class="fas fa-money-bill-wave me-1"></i>Pay Now
+                                    </button>
+                                </div>
+
+                                <!-- Payment Modal -->
+                                <div class="modal fade" id="paymentModal{{ $participant->id }}" tabindex="-1" aria-labelledby="paymentModalLabel{{ $participant->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="paymentModalLabel{{ $participant->id }}">Pay for {{ $participant->challenge->name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <form action="{{ route('challenges.payment', $participant->challenge->id) }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="payment_type" value="direct">
+                                                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                                                <i class="fas fa-credit-card me-2"></i>
+                                                                Pay Direct<br>
+                                                                <small>TZS {{ number_format($participant->challenge->daily_amount, 2) }}</small>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <form action="{{ route('challenges.payment', $participant->challenge->id) }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="payment_type" value="lipa_kidogo">
+                                                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                                Lipa Kidogo<br>
+                                                                <small>{{ $participant->challenge->duration_days }} installments</small>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        Lipa Kidogo allows you to pay the full challenge amount in installments over {{ $participant->challenge->duration_days }} days.
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     @else
@@ -419,10 +471,54 @@
             </div>
         </div>
 
-        <!-- Lipa Kidogo Plans and Feedback Row -->
+        <!-- Purchases and Feedback Row -->
         <div class="row">
+            <!-- Direct Purchases -->
+            <div class="col-12 col-lg-4 mb-4">
+                <div class="challenge-card">
+                    <h4 class="section-title">
+                        <i class="fas fa-credit-card"></i>My Direct Purchases
+                    </h4>
+                    @if($directPurchases->count() > 0)
+                        @foreach($directPurchases as $purchase)
+                            <div class="mb-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">{{ $purchase->material->name }}</h6>
+                                    <span class="badge bg-{{ $purchase->status == 'paid' ? 'success' : ($purchase->status == 'shipped' ? 'info' : ($purchase->status == 'delivered' ? 'primary' : 'warning')) }}">{{ ucfirst($purchase->status) }}</span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ Str::limit($purchase->material->description, 60) }}</p>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">Quantity</small>
+                                        <div class="fw-bold">{{ $purchase->quantity }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Total</small>
+                                        <div class="fw-bold text-success">TZS {{ number_format($purchase->total_amount, 2) }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">{{ $purchase->created_at->format('M d, Y') }}</small>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="{{ route('direct_purchases.show', $purchase->id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Detail
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-credit-card"></i>
+                            <p>No direct purchases yet. Buy materials with full payment!</p>
+                            <a href="{{ route('materials.index') }}" class="btn btn-oweru-gold btn-sm">Browse Materials</a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <!-- Lipa Kidogo Plans -->
-            <div class="col-12 col-lg-6 mb-4">
+            <div class="col-12 col-lg-4 mb-4">
                 <div class="challenge-card">
                     <h4 class="section-title">
                         <i class="fas fa-shopping-bag"></i>My Lipa Kidogo Plans
@@ -458,6 +554,11 @@
                                     <div class="progress mt-1">
                                         <div class="progress-bar bg-info" style="width: {{ $progress }}%"></div>
                                     </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="{{ route('lipa_kidogo.show', $plan->id) }}" class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Detail
+                                    </a>
                                 </div>
                             </div>
                         @endforeach

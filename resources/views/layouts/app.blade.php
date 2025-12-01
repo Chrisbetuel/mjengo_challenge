@@ -18,18 +18,19 @@
         }p
         .sidebar {
             min-height: calc(100vh - 56px);
-            background-color: #2c3e50;
+            background-color: #ffffff;
         }
         .sidebar .nav-link {
-            color: #ecf0f1;
+            color: #000000;
             padding: 0.75rem 1rem;
         }
         .sidebar .nav-link:hover {
-            background-color: #34495e;
-            color: #fff;
+            background-color: #f8f9fa;
+            color: #000000;
         }
         .sidebar .nav-link.active {
             background-color: #3498db;
+            color: #ffffff;
         }
     </style>
 </head>
@@ -79,7 +80,7 @@
                         @endif
                     </ul>
                 </div>
-                <form method="POST" action="{{ route('lang.switch') }}" class="d-inline me-3" id="lang-switch-form">
+                <form method="POST" action="{{ route('language.switch') }}" class="d-inline me-3" id="lang-switch-form">
                     @csrf
                     <select name="locale" onchange="document.getElementById('lang-switch-form').submit()" class="form-select form-select-sm">
                         <option value="en" {{ session('locale', app()->getLocale()) == 'en' ? 'selected' : '' }}>English</option>

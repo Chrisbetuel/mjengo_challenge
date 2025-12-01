@@ -243,7 +243,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Confirm Purchase</button>
+                        <button type="submit" class="btn btn-primary">Pay Now</button>
                     </div>
                 </form>
             </div>
@@ -296,7 +296,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Start Lipa Kidogo</button>
+                        <button type="submit" class="btn btn-success">Pay Now</button>
                     </div>
                 </form>
             </div>

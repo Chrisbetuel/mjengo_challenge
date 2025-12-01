@@ -6,6 +6,7 @@ use App\Models\Challenge;
 use App\Models\Payment;
 use App\Models\Participant;
 use App\Models\LipaKidogo;
+use App\Models\DirectPurchase;
 use App\Models\Testimonial;
 use App\Models\Feedback;
 use App\Models\Material;
@@ -42,6 +43,12 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        $directPurchases = DirectPurchase::where('user_id', $user->id)
+            ->with('material')
+            ->latest()
+            ->take(5)
+            ->get();
+
         // Get available challenges (not joined by user)
         $availableChallenges = Challenge::where('status', 'active')
             ->whereDoesntHave('participants', function ($query) use ($user) {
@@ -51,14 +58,11 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // Get materials for active challenges
-        $challengeMaterials = collect();
-        foreach ($activeChallenges as $participant) {
-            $materials = Material::where('challenge_id', $participant->challenge_id)
-                ->where('status', 'active')
-                ->get();
-            $challengeMaterials = $challengeMaterials->merge($materials);
-        }
+        // Get active materials
+        $challengeMaterials = Material::where('status', 'active')
+            ->latest()
+            ->take(10)
+            ->get();
 
         // Get approved and featured testimonials from database
         $testimonials = Testimonial::with('user')
@@ -106,6 +110,7 @@ class DashboardController extends Controller
             'recentPayments',
             'totalSavings',
             'lipaKidogoPlans',
+            'directPurchases',
             'availableChallenges',
             'challengeMaterials',
             'testimonials'

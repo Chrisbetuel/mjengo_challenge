@@ -40,6 +40,7 @@ return [
         'penalties' => true,
         'account' => true,
         'general_help' => true,
+        
     ],
 
     'suggestions' => [

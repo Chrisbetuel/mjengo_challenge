@@ -320,4 +320,25 @@ class AdminController extends Controller
         return redirect()->route('admin.groups')
             ->with('success', 'Group updated successfully!');
     }
+
+    public function directPurchases()
+    {
+        $directPurchases = DirectPurchase::with(['user', 'material'])
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.direct_purchases.index', compact('directPurchases'));
+    }
+
+    public function lipaKidogoPlans()
+    {
+        $lipaKidogoPlans = LipaKidogo::with(['user', 'material', 'installments'])
+            ->withCount(['installments as paid_installments_count' => function ($query) {
+                $query->where('status', 'paid');
+            }])
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.lipa_kidogo.index', compact('lipaKidogoPlans'));
+    }
 }

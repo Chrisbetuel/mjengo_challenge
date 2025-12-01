@@ -92,21 +92,16 @@
                 </div>
                 
                 <div class="mt-4">
-                    <form action="{{ route('challenges.payment', $challenge->id) }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="payment_method" class="form-label">Payment Method</label>
-                            <select class="form-select" id="payment_method" name="payment_method" required>
-                                <option value="mobile_money">Mobile Money</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="card">Credit/Debit Card</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-credit-card me-2"></i>
-                            Pay Today's Amount: TZS {{ number_format($challenge->daily_amount, 2) }}
-                        </button>
-                    </form>
+                    <div class="mb-3">
+                        <form action="{{ route('challenges.payment', $challenge->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="payment_type" value="direct">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Pay Now
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Testimonial;
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,9 +10,9 @@ class TestimonialController extends Controller
 {
     public function index()
     {
-        $testimonials = Testimonial::with('user')
-            ->approved()
-            ->featured()
+        $testimonials = Feedback::with('user')
+            ->where('type', 'testimonial')
+            ->where('status', 'resolved')
             ->latest()
             ->take(10)
             ->get();
@@ -27,11 +27,12 @@ class TestimonialController extends Controller
             'rating' => 'required|integer|between:1,5'
         ]);
 
-        Testimonial::create([
+        Feedback::create([
             'user_id' => Auth::id(),
-            'content' => $request->content,
-            'rating' => $request->rating,
-            'is_approved' => false // Requires admin approval
+            'subject' => 'Testimonial',
+            'message' => $request->content,
+            'type' => 'testimonial',
+            'status' => 'pending'
         ]);
 
         return redirect()->back()->with('success', 'Thank you for your feedback! Your testimonial will be reviewed before publishing.');
@@ -40,35 +41,39 @@ class TestimonialController extends Controller
     // Admin methods
     public function adminIndex()
     {
-        $testimonials = Testimonial::with('user')->latest()->get();
+        $testimonials = Feedback::with('user')
+            ->where('type', 'testimonial')
+            ->latest()
+            ->get();
         return view('admin.testimonials.index', compact('testimonials'));
     }
 
-    public function approve(Testimonial $testimonial)
+    public function approve(Feedback $testimonial)
     {
-        $testimonial->update(['is_approved' => true]);
+        $testimonial->update(['status' => 'resolved']);
         return redirect()->back()->with('success', 'Testimonial approved successfully.');
     }
 
-    public function reject(Testimonial $testimonial)
+    public function reject(Feedback $testimonial)
     {
-        $testimonial->update(['is_approved' => false]);
+        $testimonial->update(['status' => 'pending']);
         return redirect()->back()->with('success', 'Testimonial rejected.');
     }
 
-    public function feature(Testimonial $testimonial)
+    public function feature(Feedback $testimonial)
     {
-        $testimonial->update(['is_featured' => true]);
+        // For now, we'll use admin_response to mark as featured
+        $testimonial->update(['admin_response' => 'featured']);
         return redirect()->back()->with('success', 'Testimonial featured successfully.');
     }
 
-    public function unfeature(Testimonial $testimonial)
+    public function unfeature(Feedback $testimonial)
     {
-        $testimonial->update(['is_featured' => false]);
+        $testimonial->update(['admin_response' => null]);
         return redirect()->back()->with('success', 'Testimonial unfeatured.');
     }
 
-    public function destroy(Testimonial $testimonial)
+    public function destroy(Feedback $testimonial)
     {
         $testimonial->delete();
         return redirect()->back()->with('success', 'Testimonial deleted successfully.');
