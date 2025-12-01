@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\ChallengeController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\PenaltyController;
-use App\Http\Controllers\Api\ChatbotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/penalties/appeal', [PenaltyController::class, 'appeal']);
 });
 
+<<<<<<< HEAD
 // Chatbot routes (accessible from web with auth)
 Route::middleware('auth')->prefix('chatbot')->name('chatbot')->group(function () {
     Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
@@ -48,6 +48,8 @@ Route::middleware('auth')->prefix('chatbot')->name('chatbot')->group(function ()
     Route::get('/suggestions', [ChatbotController::class, 'getSuggestions'])->name('suggestions');
 });
 
+=======
+>>>>>>> 70d2f8c8601bf8ded6250c87ff803554128daee7
 // Admin only routes
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/challenges', [ChallengeController::class, 'store']);
@@ -56,12 +58,13 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     
     Route::post('/materials', [MaterialController::class, 'store']);
     
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    // Uncomment these if UserController and StatsController are created
+    // Route::get('/users', [UserController::class, 'index']);
+    // Route::get('/users/{id}', [UserController::class, 'show']);
+    // Route::put('/users/{id}', [UserController::class, 'update']);
+    // Route::delete('/users/{id}', [UserController::class, 'destroy']);
     
-    Route::get('/stats/overview', [StatsController::class, 'overview']);
-    Route::get('/stats/payments', [StatsController::class, 'paymentStats']);
-    Route::get('/stats/challenges', [StatsController::class, 'challengeStats']);
+    // Route::get('/stats/overview', [StatsController::class, 'overview']);
+    // Route::get('/stats/payments', [StatsController::class, 'paymentStats']);
+    // Route::get('/stats/challenges', [StatsController::class, 'challengeStats']);
 });

@@ -28,6 +28,15 @@ class ChatbotController extends Controller
 
         try {
             $user = auth()->user();
+            
+            // Require authentication for sending messages
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please log in to use the chatbot.',
+                ], 401);
+            }
+            
             $message = $request->input('message');
 
             // Initialize service with authenticated user
@@ -67,6 +76,16 @@ class ChatbotController extends Controller
     public function getHistory(Request $request): JsonResponse
     {
         $user = auth()->user();
+        
+        // Return empty if not authenticated
+        if (!$user) {
+            return response()->json([
+                'success' => true,
+                'count' => 0,
+                'messages' => [],
+            ]);
+        }
+        
         $limit = $request->input('limit', 20);
         $type = $request->input('type');
 
@@ -125,6 +144,15 @@ class ChatbotController extends Controller
     {
         try {
             $user = auth()->user();
+            
+            // Return success if not authenticated
+            if (!$user) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Chat history cleared.',
+                ]);
+            }
+            
             ChatbotMessage::where('user_id', $user->id)->delete();
 
             return response()->json([

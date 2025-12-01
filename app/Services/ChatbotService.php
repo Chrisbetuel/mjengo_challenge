@@ -124,10 +124,8 @@ class ChatbotService
             $response .= "   Participants: " . $challenge->activeParticipants()->count() . "/" . $challenge->max_participants . "\n";
             $response .= "   Total Collected: TZS " . number_format($challenge->getTotalCollected(), 2) . "\n\n";
         }
-
         return $response;
     }
-
     /**
      * Get user's active challenges
      */
@@ -138,7 +136,6 @@ class ChatbotService
         if ($challenges->isEmpty()) {
             return "You haven't joined any challenges yet. 🤔\n\nWould you like to join one? Type 'show challenges' to see what's available!";
         }
-
         $response = "💪 Your Active Challenges:\n\n";
         foreach ($challenges as $participant) {
             $challenge = $participant->challenge;

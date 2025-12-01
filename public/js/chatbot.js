@@ -280,15 +280,20 @@ class ChatbotWidget {
                 'X-CSRF-TOKEN': this.config.csrfToken,
             },
             credentials: 'same-origin',
-            body: JSON.stringify({ message_id: messageId, rating })
+            body: JSON.stringify({ message_id: messageId, rating: rating })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
+            if (data && data.success) {
                 console.log('Response rated successfully');
             }
         })
-        .catch(error => console.error('Rating error:', error));
+        .catch(error => console.error('Error rating response:', error));
     }
 
     loadChatHistory() {
@@ -300,9 +305,14 @@ class ChatbotWidget {
             },
             credentials: 'same-origin',
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success && data.messages.length > 0) {
+            if (data.success && data.messages && data.messages.length > 0) {
                 // Load last few messages
                 data.messages.slice(-5).forEach(msg => {
                     this.addMessage(msg.user_message, 'user');
@@ -326,24 +336,41 @@ class ChatbotWidget {
             },
             credentials: 'same-origin',
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
+            if (data && data.success) {
                 const suggestionsGrid = document.getElementById('suggestions-grid');
-                suggestionsGrid.innerHTML = '';
-                
-                data.suggestions.forEach(suggestion => {
-                    const btn = document.createElement('button');
-                    btn.className = 'suggestion-btn';
-                    btn.textContent = suggestion;
-                    btn.addEventListener('click', () => {
-                        this.sendMessage(suggestion);
-                    });
-                    suggestionsGrid.appendChild(btn);
-                });
+                if (suggestionsGrid) {
+                    suggestionsGrid.innerHTML = '';
+                    
+                    if (data.suggestions && Array.isArray(data.suggestions)) {
+                        data.suggestions.forEach(suggestion => {
+                            const btn = document.createElement('button');
+                            btn.className = 'suggestion-btn';
+                            btn.textContent = suggestion;
+                            btn.addEventListener('click', () => {
+                                this.sendMessage(suggestion);
+                            });
+                            suggestionsGrid.appendChild(btn);
+                        });
+                    }
+                }
+            } else {
+                console.error('Invalid suggestions response:', data);
             }
         })
-        .catch(error => console.error('Error loading suggestions:', error));
+        .catch(error => {
+            console.error('Error loading suggestions:', error);
+            const suggestionsGrid = document.getElementById('suggestions-grid');
+            if (suggestionsGrid) {
+                suggestionsGrid.innerHTML = '<p class="text-muted">Unable to load suggestions</p>';
+            }
+        });
     }
 
     clearHistory() {
@@ -356,9 +383,14 @@ class ChatbotWidget {
                 },
                 credentials: 'same-origin',
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                if (data.success) {
+                if (data && data.success) {
                     const messagesContainer = document.getElementById('chatbot-messages');
                     messagesContainer.innerHTML = `
                         <div class="chatbot-message bot-message">

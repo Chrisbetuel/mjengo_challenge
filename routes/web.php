@@ -10,6 +10,7 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\NotificationController;
+<<<<<<< HEAD
 use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\LanguageController;
@@ -31,9 +32,15 @@ use App\Http\Controllers\Api\ChatbotController as ApiChatbotController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+=======
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\ChatbotController;
+>>>>>>> 70d2f8c8601bf8ded6250c87ff803554128daee7
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+<<<<<<< HEAD
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -42,6 +49,19 @@ Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+=======
+// Public chatbot endpoints
+Route::get('/api/chatbot/suggestions', [ChatbotController::class, 'getSuggestions'])->name('chatbot.suggestions');
+
+// Authentication routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
+    Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+>>>>>>> 70d2f8c8601bf8ded6250c87ff803554128daee7
 
 // Password Reset Routes
 Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.forgot');
@@ -91,7 +111,22 @@ Route::middleware(['auth'])->group(function () {
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+<<<<<<< HEAD
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+=======
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+
+    // Testimonials
+    Route::post('/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+
+    // Chatbot API Routes (for authenticated users)
+    Route::prefix('api/chatbot')->name('chatbot.')->group(function () {
+        Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
+        Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
+        Route::post('/rate', [ChatbotController::class, 'rateResponse'])->name('rate');
+        Route::post('/clear', [ChatbotController::class, 'clearHistory'])->name('clear');
+    });
+>>>>>>> 70d2f8c8601bf8ded6250c87ff803554128daee7
 });
 
 // Admin Routes (Require Admin Authentication)
