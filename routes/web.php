@@ -34,8 +34,8 @@ use App\Http\Controllers\Api\ChatbotController as ApiChatbotController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Public chatbot endpoints
-Route::get('/api/chatbot/suggestions', [ChatbotController::class, 'getSuggestions'])->name('chatbot.suggestions');
+// Public chatbot endpoints (use ApiChatbotController)
+Route::get('/api/chatbot/suggestions', [ApiChatbotController::class, 'getSuggestions'])->name('chatbot.suggestions');
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -96,12 +96,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
-    // Chatbot API Routes (for authenticated users)
+    // Chatbot API Routes (for authenticated users) - using ApiChatbotController
     Route::prefix('api/chatbot')->name('chatbot.')->group(function () {
-        Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
-        Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
-        Route::post('/rate', [ChatbotController::class, 'rateResponse'])->name('rate');
-        Route::post('/clear', [ChatbotController::class, 'clearHistory'])->name('clear');
+        Route::post('/send', [ApiChatbotController::class, 'sendMessage'])->name('send');
+        Route::get('/history', [ApiChatbotController::class, 'getHistory'])->name('history');
+        Route::post('/rate', [ApiChatbotController::class, 'rateResponse'])->name('rate');
+        Route::post('/clear', [ApiChatbotController::class, 'clearHistory'])->name('clear');
     });
 });
 

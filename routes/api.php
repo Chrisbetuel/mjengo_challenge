@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ChallengeController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\PenaltyController;
+use App\Http\Controllers\Api\ChatbotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

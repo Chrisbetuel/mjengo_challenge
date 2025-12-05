@@ -32,8 +32,17 @@ class ChatbotService
         $response = '';
         $context = [];
 
-        // Check message intent and category
-        if ($this->isAboutChallenges($message)) {
+        // Check message intent and category - greetings first!
+        if ($this->isGreeting($message)) {
+            $response = $this->handleGreeting($message);
+            $messageType = 'greeting';
+        } elseif ($this->isFarewell($message)) {
+            $response = $this->handleFarewell();
+            $messageType = 'farewell';
+        } elseif ($this->isThanks($message)) {
+            $response = $this->handleThanks();
+            $messageType = 'thanks';
+        } elseif ($this->isAboutChallenges($message)) {
             $response = $this->handleChallengeQuery($message, $context);
             $messageType = 'challenge';
         } elseif ($this->isAboutMaterials($message)) {
@@ -54,6 +63,12 @@ class ChatbotService
         } elseif ($this->isAboutAccount($message)) {
             $response = $this->handleAccountQuery($message, $context);
             $messageType = 'account';
+        } elseif ($this->isAboutDirectPurchase($message)) {
+            $response = $this->handleDirectPurchaseQuery($message, $context);
+            $messageType = 'purchase';
+        } elseif ($this->isAboutNotifications($message)) {
+            $response = $this->handleNotificationQuery($message, $context);
+            $messageType = 'notification';
         } else {
             $response = $this->handleGeneralQuery($message, $context);
             $messageType = 'general';
@@ -64,6 +79,150 @@ class ChatbotService
             'message_type' => $messageType,
             'context' => $context,
         ];
+    }
+
+    /**
+     * Check if message is a greeting
+     */
+    private function isGreeting(string $message): bool
+    {
+        $greetings = [
+            'hello', 'hi', 'hey', 'hola', 'jambo', 'habari', 'mambo', 
+            'good morning', 'good afternoon', 'good evening', 'good day',
+            'morning', 'afternoon', 'evening', 'howdy', 'sup', 'whats up',
+            "what's up", 'greetings', 'salaam', 'salam', 'yo', 'hallo'
+        ];
+        return $this->messageContainsAny($message, $greetings);
+    }
+
+    /**
+     * Handle greeting messages
+     */
+    private function handleGreeting(string $message): string
+    {
+        $greetings = [
+            "👋 Hello! Welcome to Mjengo Challenge! I'm your assistant and I'm here to help you with:\n\n" .
+            "🏆 **Challenges** - Daily savings challenges\n" .
+            "🛠️ **Materials** - Building materials & tools\n" .
+            "💳 **Lipa Kidogo** - Flexible installment payments\n" .
+            "👥 **Groups** - Community savings groups\n" .
+            "💰 **Savings** - Track your progress\n\n" .
+            "How can I help you today?",
+
+            "👋 Jambo! Karibu Mjengo Challenge! I'm here to assist you with your building and savings journey.\n\n" .
+            "Ask me about challenges, materials, payments, or anything else. What would you like to know?",
+
+            "👋 Hi there! Great to see you! I'm your Mjengo Challenge assistant.\n\n" .
+            "I can help you with:\n" .
+            "• Joining savings challenges\n" .
+            "• Finding building materials\n" .
+            "• Managing payments\n" .
+            "• Tracking your savings\n\n" .
+            "What can I help you with?",
+        ];
+
+        return $greetings[array_rand($greetings)];
+    }
+
+    /**
+     * Check if message is a farewell
+     */
+    private function isFarewell(string $message): bool
+    {
+        $farewells = ['bye', 'goodbye', 'see you', 'later', 'take care', 'goodnight', 'good night', 'kwaheri', 'tutaonana'];
+        return $this->messageContainsAny($message, $farewells);
+    }
+
+    /**
+     * Handle farewell messages
+     */
+    private function handleFarewell(): string
+    {
+        $farewells = [
+            "👋 Goodbye! Keep saving and building your dreams! See you soon! 🏗️",
+            "👋 Kwaheri! Remember, every small savings brings you closer to your goals. Take care!",
+            "👋 See you later! Don't forget to check your challenges. Keep building! 💪",
+            "👋 Bye for now! Wishing you success in your building journey! 🏠",
+        ];
+        return $farewells[array_rand($farewells)];
+    }
+
+    /**
+     * Check if message is expressing thanks
+     */
+    private function isThanks(string $message): bool
+    {
+        $thanks = ['thank', 'thanks', 'asante', 'shukran', 'appreciate', 'grateful', 'thx'];
+        return $this->messageContainsAny($message, $thanks);
+    }
+
+    /**
+     * Handle thank you messages
+     */
+    private function handleThanks(): string
+    {
+        $responses = [
+            "😊 You're welcome! I'm always here to help. Is there anything else you'd like to know?",
+            "🙏 Karibu sana! Happy to help! Feel free to ask if you have more questions.",
+            "😊 My pleasure! Don't hesitate to ask if you need more assistance with your savings journey!",
+            "🤗 Asante! I'm glad I could help. Let me know if there's anything else!",
+        ];
+        return $responses[array_rand($responses)];
+    }
+
+    /**
+     * Check if message is about direct purchase
+     */
+    private function isAboutDirectPurchase(string $message): bool
+    {
+        $keywords = ['direct purchase', 'direct buy', 'buy now', 'purchase now', 'immediate purchase', 'instant buy'];
+        return $this->messageContainsAny($message, $keywords);
+    }
+
+    /**
+     * Handle direct purchase queries
+     */
+    private function handleDirectPurchaseQuery(string $message, array &$context): string
+    {
+        return "🛒 **Direct Purchase**\n\n" .
+            "Direct Purchase allows you to buy building materials immediately with full payment.\n\n" .
+            "**How it works:**\n" .
+            "1️⃣ Browse our materials catalog\n" .
+            "2️⃣ Select the item you want\n" .
+            "3️⃣ Choose 'Direct Purchase'\n" .
+            "4️⃣ Complete payment\n" .
+            "5️⃣ Receive your materials!\n\n" .
+            "**Benefits:**\n" .
+            "✅ Instant ownership\n" .
+            "✅ No installment fees\n" .
+            "✅ Quick delivery\n\n" .
+            "Type 'show materials' to browse available products!";
+    }
+
+    /**
+     * Check if message is about notifications
+     */
+    private function isAboutNotifications(string $message): bool
+    {
+        $keywords = ['notification', 'notifications', 'alert', 'alerts', 'reminder', 'reminders', 'updates'];
+        return $this->messageContainsAny($message, $keywords);
+    }
+
+    /**
+     * Handle notification queries
+     */
+    private function handleNotificationQuery(string $message, array &$context): string
+    {
+        return "🔔 **Notifications**\n\n" .
+            "Stay updated with our notification system!\n\n" .
+            "**You'll receive notifications for:**\n" .
+            "📅 Payment reminders\n" .
+            "🏆 Challenge updates\n" .
+            "👥 Group activities\n" .
+            "💰 Savings milestones\n" .
+            "📦 Material availability\n" .
+            "⚠️ Penalty alerts\n\n" .
+            "Check your notifications in the bell icon on your dashboard!";
     }
 
     /**
@@ -448,7 +607,39 @@ class ChatbotService
             return $this->getHelpMenu();
         }
 
-        if ($this->containsKeywords($message, ['about', 'system', 'explain', 'what is'])) {
+        if ($this->containsKeywords($message, ['about', 'system', 'explain', 'what is', 'tell me about', 'describe'])) {
+            return $this->getSystemOverview();
+        }
+
+        if ($this->containsKeywords($message, ['how are you', 'how do you do', 'how you doing'])) {
+            return $this->handleHowAreYou();
+        }
+
+        if ($this->containsKeywords($message, ['who are you', 'what are you', 'your name'])) {
+            return $this->handleWhoAreYou();
+        }
+
+        if ($this->containsKeywords($message, ['features', 'services', 'offer', 'provide', 'do you have'])) {
+            return $this->getFeaturesOverview();
+        }
+
+        if ($this->containsKeywords($message, ['register', 'sign up', 'create account', 'join platform'])) {
+            return $this->getRegistrationInfo();
+        }
+
+        if ($this->containsKeywords($message, ['login', 'sign in', 'log in', 'access account'])) {
+            return $this->getLoginInfo();
+        }
+
+        if ($this->containsKeywords($message, ['contact', 'support', 'reach', 'customer service'])) {
+            return $this->getContactInfo();
+        }
+
+        if ($this->containsKeywords($message, ['dashboard', 'home', 'main page'])) {
+            return $this->getDashboardInfo();
+        }
+
+        if ($this->containsKeywords($message, ['oweru', 'mjengo'])) {
             return $this->getSystemOverview();
         }
 
@@ -456,21 +647,165 @@ class ChatbotService
     }
 
     /**
+     * Handle "how are you" questions
+     */
+    private function handleHowAreYou(): string
+    {
+        $responses = [
+            "😊 I'm doing great, thanks for asking! I'm here and ready to help you with your savings and building materials. How can I assist you today?",
+            "🤖 I'm functioning perfectly and ready to serve! What would you like to know about Mjengo Challenge?",
+            "💪 I'm excellent! Always energized to help users like you achieve their building dreams. What can I help you with?",
+        ];
+        return $responses[array_rand($responses)];
+    }
+
+    /**
+     * Handle "who are you" questions
+     */
+    private function handleWhoAreYou(): string
+    {
+        return "🤖 **About Me**\n\n" .
+            "I'm the Mjengo Challenge Assistant - your friendly chatbot!\n\n" .
+            "**What I can do:**\n" .
+            "💬 Answer questions about the platform\n" .
+            "🏆 Help you find challenges to join\n" .
+            "🛠️ Show you available materials\n" .
+            "💰 Check your savings progress\n" .
+            "📊 Explain how features work\n" .
+            "❓ Guide you through the system\n\n" .
+            "I'm here 24/7 to assist you on your building journey! Just ask away! 😊";
+    }
+
+    /**
+     * Get comprehensive features overview
+     */
+    private function getFeaturesOverview(): string
+    {
+        return "🌟 **Mjengo Challenge Features**\n\n" .
+            "**1. 🏆 Daily Challenges**\n" .
+            "Join savings challenges with daily targets. Save consistently and build your fund!\n\n" .
+            "**2. 🛠️ Building Materials**\n" .
+            "Access quality construction materials - tools, equipment, and building supplies.\n\n" .
+            "**3. 💳 Lipa Kidogo (Pay Little)**\n" .
+            "Buy materials through affordable installment plans. No big upfront costs!\n\n" .
+            "**4. 🛒 Direct Purchase**\n" .
+            "Buy materials immediately with full payment for instant ownership.\n\n" .
+            "**5. 👥 Savings Groups**\n" .
+            "Create or join groups to save together with friends and community.\n\n" .
+            "**6. 💰 Savings Tracking**\n" .
+            "Monitor your progress, view history, and celebrate milestones!\n\n" .
+            "**7. 🔔 Notifications**\n" .
+            "Stay updated with payment reminders and challenge alerts.\n\n" .
+            "**8. 📊 Dashboard**\n" .
+            "Your personal hub to manage everything in one place.\n\n" .
+            "Want to know more about any feature? Just ask!";
+    }
+
+    /**
+     * Get registration info
+     */
+    private function getRegistrationInfo(): string
+    {
+        return "📝 **How to Register**\n\n" .
+            "Getting started is easy!\n\n" .
+            "**Steps:**\n" .
+            "1️⃣ Click 'Get Started' or 'Register' on the home page\n" .
+            "2️⃣ Enter your username\n" .
+            "3️⃣ Provide your email address\n" .
+            "4️⃣ Add your phone number\n" .
+            "5️⃣ Create a secure password\n" .
+            "6️⃣ Submit and you're in!\n\n" .
+            "**After registration you can:**\n" .
+            "✅ Join savings challenges\n" .
+            "✅ Purchase materials\n" .
+            "✅ Create or join groups\n" .
+            "✅ Track your savings\n\n" .
+            "Ready to start building your future? 🏗️";
+    }
+
+    /**
+     * Get login info
+     */
+    private function getLoginInfo(): string
+    {
+        return "🔐 **How to Login**\n\n" .
+            "Access your account easily:\n\n" .
+            "**Steps:**\n" .
+            "1️⃣ Click 'Login' on the home page\n" .
+            "2️⃣ Enter your email or username\n" .
+            "3️⃣ Enter your password\n" .
+            "4️⃣ Click 'Sign In'\n\n" .
+            "**Forgot Password?**\n" .
+            "Click 'Forgot Password' and enter your email to receive a reset link.\n\n" .
+            "Having trouble? Contact our support team!";
+    }
+
+    /**
+     * Get contact info
+     */
+    private function getContactInfo(): string
+    {
+        return "📞 **Contact & Support**\n\n" .
+            "Need help? We're here for you!\n\n" .
+            "**Ways to reach us:**\n" .
+            "📧 Email: support@oweru.com\n" .
+            "📱 Phone: +255 XXX XXX XXX\n" .
+            "💬 Chat: Use this chatbot anytime!\n\n" .
+            "**Support Hours:**\n" .
+            "Monday - Friday: 8:00 AM - 6:00 PM\n" .
+            "Saturday: 9:00 AM - 2:00 PM\n\n" .
+            "You can also submit feedback through your dashboard!";
+    }
+
+    /**
+     * Get dashboard info
+     */
+    private function getDashboardInfo(): string
+    {
+        return "📊 **Your Dashboard**\n\n" .
+            "The dashboard is your control center!\n\n" .
+            "**What you'll find:**\n" .
+            "🏆 Active Challenges - Your current savings challenges\n" .
+            "💰 Savings Overview - Total amount saved\n" .
+            "📦 Materials - Browse and purchase items\n" .
+            "👥 Groups - Your savings groups\n" .
+            "💳 Payments - Payment history and pending dues\n" .
+            "🔔 Notifications - Updates and reminders\n" .
+            "📈 Progress - Track your journey\n\n" .
+            "Login to access your personalized dashboard!";
+    }
+
+    /**
      * Get help menu
      */
     private function getHelpMenu(): string
     {
-        return "🤖 **How can I help you?**\n\n" .
-            "I can answer questions about:\n\n" .
-            "💰 **Challenges** - Ask about active challenges, join challenges, or your progress\n" .
-            "🛠️ **Materials** - Browse available tools and materials\n" .
-            "💳 **Lipa Kidogo** - Flexible payment plans for materials\n" .
-            "👥 **Groups** - Find or create savings groups\n" .
-            "💸 **Payments** - Check payment status and history\n" .
-            "💎 **Savings** - View your total savings and progress\n" .
-            "⚠️ **Penalties** - Check for any penalties\n" .
-            "👤 **Account** - View your account details\n\n" .
-            "Try asking: 'Show me all challenges' or 'How much have I saved?'";
+        return "🤖 **Mjengo Challenge Assistant - Help Menu**\n\n" .
+            "I can help you with:\n\n" .
+            "**💬 Conversations**\n" .
+            "• Say 'hello' or 'hi' to greet me\n" .
+            "• Ask 'how are you' for a friendly chat\n" .
+            "• Say 'bye' when you're done\n\n" .
+            "**🏆 Challenges**\n" .
+            "• 'Show challenges' - List available challenges\n" .
+            "• 'My challenges' - Your active challenges\n" .
+            "• 'How do challenges work' - Learn about challenges\n\n" .
+            "**🛠️ Materials**\n" .
+            "• 'Show materials' - Browse products\n" .
+            "• 'Material prices' - Check pricing\n" .
+            "• 'What is Lipa Kidogo' - Installment info\n\n" .
+            "**💰 Savings & Payments**\n" .
+            "• 'My savings' - Check your savings\n" .
+            "• 'My payments' - Payment status\n" .
+            "• 'Payment history' - Past transactions\n\n" .
+            "**👥 Groups**\n" .
+            "• 'Show groups' - Available groups\n" .
+            "• 'My groups' - Your memberships\n\n" .
+            "**📖 General**\n" .
+            "• 'Features' - All platform features\n" .
+            "• 'About system' - Learn about Mjengo\n" .
+            "• 'How to register' - Sign up help\n\n" .
+            "Just type your question naturally! 😊";
     }
 
     /**
@@ -478,15 +813,26 @@ class ChatbotService
      */
     private function getSystemOverview(): string
     {
-        return "🏗️ **Welcome to Mjengo Challenge!**\n\n" .
-            "Our mission is to help you build savings and access affordable building materials through group challenges.\n\n" .
-            "**Key Features:**\n\n" .
-            "🏆 **Challenges** - Join daily savings challenges with others\n" .
-            "🛠️ **Materials** - Access quality building materials at competitive prices\n" .
-            "💳 **Flexible Payments** - Our Lipa Kidogo plan lets you pay installments\n" .
-            "👥 **Groups** - Save together with others in group challenges\n" .
-            "💰 **Rewards** - Earn as you participate and achieve goals\n\n" .
-            "Get started by joining a challenge today!";
+        return "🏗️ **Welcome to Mjengo Challenge (Oweru)!**\n\n" .
+            "Mjengo Challenge is a savings and building materials platform designed to help Tanzanians build their dreams!\n\n" .
+            "**🎯 Our Mission:**\n" .
+            "Empower individuals to save money through disciplined daily challenges and access affordable building materials.\n\n" .
+            "**✨ What We Offer:**\n\n" .
+            "🏆 **Daily Savings Challenges**\n" .
+            "Join challenges with daily saving targets. Build your fund consistently!\n\n" .
+            "🛠️ **Quality Building Materials**\n" .
+            "Access construction materials, tools, and equipment at competitive prices.\n\n" .
+            "💳 **Lipa Kidogo (Pay Little by Little)**\n" .
+            "Purchase expensive items through easy installment payments.\n\n" .
+            "🛒 **Direct Purchase**\n" .
+            "Buy materials immediately when you have the funds.\n\n" .
+            "👥 **Savings Groups**\n" .
+            "Create or join community savings groups to achieve bigger goals together.\n\n" .
+            "📊 **Progress Tracking**\n" .
+            "Monitor your savings journey with detailed dashboards.\n\n" .
+            "**🚀 Get Started:**\n" .
+            "Register, join a challenge, and start building your future today!\n\n" .
+            "Ask me anything about these features! 💬";
     }
 
     /**
@@ -494,8 +840,31 @@ class ChatbotService
      */
     private function getDefaultResponse(): string
     {
-        return "👋 I'm here to help! I can answer questions about challenges, materials, payments, savings, and more.\n\n" .
-            "Type 'help' to see what I can do, or ask me anything about the platform!";
+        $responses = [
+            "🤔 I'm not sure I understood that. Let me help you!\n\n" .
+            "You can ask me about:\n" .
+            "• Challenges - 'Show challenges'\n" .
+            "• Materials - 'Show materials'\n" .
+            "• Savings - 'My savings'\n" .
+            "• Payments - 'My payments'\n\n" .
+            "Or type 'help' for the full menu!",
+
+            "🤖 Hmm, I didn't quite catch that. Try asking about:\n\n" .
+            "🏆 Challenges\n" .
+            "🛠️ Materials\n" .
+            "💳 Lipa Kidogo\n" .
+            "💰 Savings\n" .
+            "👥 Groups\n\n" .
+            "Type 'help' for more options!",
+
+            "👋 I'm your Mjengo Challenge assistant! I can help with:\n\n" .
+            "• Savings challenges\n" .
+            "• Building materials\n" .
+            "• Payment plans\n" .
+            "• Group savings\n\n" .
+            "What would you like to know? (Type 'help' for all options)",
+        ];
+        return $responses[array_rand($responses)];
     }
 
     /**

@@ -173,19 +173,49 @@ class ChatbotController extends Controller
     public function getSuggestions(): JsonResponse
     {
         $suggestions = [
+            // Greetings
+            'Hello!',
+            'Hi, how are you?',
+            
+            // System Info
+            'What is Mjengo Challenge?',
+            'Tell me about your features',
+            'How does this system work?',
+            
+            // Challenges
             'Show me all challenges',
+            'How do challenges work?',
+            'Show my active challenges',
+            
+            // Materials
+            'Show available materials',
+            'What is Lipa Kidogo?',
+            'How can I buy materials?',
+            
+            // Savings & Payments
             'How much have I saved?',
             'What are my pending payments?',
-            'Show available materials',
-            'Tell me about Lipa Kidogo',
+            'Show my payment history',
+            
+            // Groups
             'Show my active groups',
-            'How do challenges work?',
+            'How do groups work?',
+            
+            // Account
             'Check my account info',
+            'How do I register?',
+            
+            // Help
+            'Help',
         ];
+
+        // Shuffle and return 8 random suggestions
+        shuffle($suggestions);
+        $selectedSuggestions = array_slice($suggestions, 0, 8);
 
         return response()->json([
             'success' => true,
-            'suggestions' => $suggestions,
+            'suggestions' => $selectedSuggestions,
         ]);
     }
 }

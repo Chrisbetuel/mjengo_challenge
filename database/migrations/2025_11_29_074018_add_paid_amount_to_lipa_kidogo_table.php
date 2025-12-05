@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('lipa_kidogo', function (Blueprint $table) {
-            $table->decimal('paid_amount', 10, 2)->default(0)->after('total_amount');
-        });
+        if (!Schema::hasColumn('lipa_kidogo', 'paid_amount')) {
+            Schema::table('lipa_kidogo', function (Blueprint $table) {
+                $table->decimal('paid_amount', 10, 2)->default(0)->after('total_amount');
+            });
+        }
     }
 
     /**
