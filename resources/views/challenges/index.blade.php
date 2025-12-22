@@ -235,7 +235,7 @@
                                             <i class="fas fa-check me-1"></i>Already Joined
                                         </button>
                                     @elseif($availableSlots > 0)
-                                        <form action="{{ route('challenges.join', $challenge->id) }}" method="POST">
+                                        <form action="{{ route('challenges.index', $challenge->id) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="btn btn-oweru-gold btn-sm w-100 text-oweru-dark">
                                                 <i class="fas fa-plus me-1"></i>Join Challenge

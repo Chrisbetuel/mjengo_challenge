@@ -97,16 +97,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
-<<<<<<< HEAD
     // Chatbot API Routes (for authenticated users) - using ApiChatbotController
-=======
     // Penalties (User can view their own penalties)
     Route::get('/penalties', [DashboardController::class, 'penalties'])->name('penalties.index');
     Route::get('/penalties/{penalty}', [DashboardController::class, 'showPenalty'])->name('penalties.show');
     Route::post('/penalties/{penalty}/appeal', [DashboardController::class, 'appealPenalty'])->name('penalties.appeal');
 
     // Chatbot API Routes (for authenticated users)
->>>>>>> 4e8a677 (chat system)
     Route::prefix('api/chatbot')->name('chatbot.')->group(function () {
         Route::post('/send', [ApiChatbotController::class, 'sendMessage'])->name('send');
         Route::get('/history', [ApiChatbotController::class, 'getHistory'])->name('history');
