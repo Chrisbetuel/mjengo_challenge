@@ -10,6 +10,8 @@ use App\Models\DirectPurchase;
 use App\Models\Testimonial;
 use App\Models\Feedback;
 use App\Models\Material;
+use App\Models\Penalty;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +29,12 @@ class DashboardController extends Controller
         $activeChallenges = $user->participants()
             ->with('challenge')
             ->where('participants.status', 'active')
-            ->get();
+            ->get()
+            ->map(function ($participant) {
+                $participant->debt_breakdown = $participant->getDebtBreakdown();
+                $participant->has_debt = $participant->hasDebt();
+                return $participant;
+            });
 
         $recentPayments = Payment::whereHas('participant', function ($query) use ($user) {
             $query->where('user_id', $user->id);
@@ -134,5 +141,60 @@ class DashboardController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Thank you for your feedback! We will review it shortly.');
+    }
+
+    public function penalties()
+    {
+        $user = Auth::user();
+
+        $penalties = Penalty::where('user_id', $user->id)
+            ->with('challenge')
+            ->latest()
+            ->paginate(20);
+
+        return view('penalties.index', compact('penalties'));
+    }
+
+    public function showPenalty($penalty)
+    {
+        $user = Auth::user();
+
+        $penalty = Penalty::where('user_id', $user->id)
+            ->with('challenge')
+            ->findOrFail($penalty);
+
+        return view('penalties.show', compact('penalty'));
+    }
+
+    public function appealPenalty(Request $request, $penalty)
+    {
+        $user = Auth::user();
+
+        $penalty = Penalty::where('user_id', $user->id)
+            ->findOrFail($penalty);
+
+        // Check if penalty can be appealed (only active penalties can be appealed)
+        if (!$penalty->isActive()) {
+            return redirect()->back()->with('error', 'This penalty cannot be appealed.');
+        }
+
+        $request->validate([
+            'appeal_reason' => 'required|string|max:1000',
+        ]);
+
+        $penalty->appeal();
+
+        // Log the appeal
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => 'penalty_appeal',
+            'description' => "Penalty #{$penalty->id} appealed: {$request->appeal_reason}",
+            'metadata' => [
+                'penalty_id' => $penalty->id,
+                'appeal_reason' => $request->appeal_reason,
+            ],
+        ]);
+
+        return redirect()->back()->with('success', 'Your penalty appeal has been submitted and is under review.');
     }
 }

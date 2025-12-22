@@ -132,4 +132,69 @@ class User extends Authenticatable
             ->with('group')
             ->get();
     }
+
+    public function getChallengeDebt()
+    {
+        return $this->participants()
+            ->where('participants.status', 'active')
+            ->whereHas('challenge', function ($query) {
+                $query->where('status', 'active');
+            })
+            ->join('payments', 'participants.id', '=', 'payments.participant_id')
+            ->where('payments.status', '!=', 'paid')
+            ->sum('payments.amount');
+    }
+
+    public function getLipaKidogoDebt()
+    {
+        return $this->lipaKidogoPlans()
+            ->where('lipa_kidogo.status', 'active')
+            ->join('lipa_kidogo_installments', 'lipa_kidogo.id', '=', 'lipa_kidogo_installments.lipa_kidogo_id')
+            ->where('lipa_kidogo_installments.status', '!=', 'paid')
+            ->sum('lipa_kidogo_installments.amount');
+    }
+
+    public function getTotalDebt()
+    {
+        return $this->getChallengeDebt() + $this->getLipaKidogoDebt();
+    }
+
+    public function getDetailedChallengeDebts()
+    {
+        return $this->participants()
+            ->where('participants.status', 'active')
+            ->whereHas('challenge', function ($query) {
+                $query->where('status', 'active');
+            })
+            ->join('payments', 'participants.id', '=', 'payments.participant_id')
+            ->join('challenges', 'participants.challenge_id', '=', 'challenges.id')
+            ->where('payments.status', '!=', 'paid')
+            ->select(
+                'challenges.name as challenge_name',
+                'payments.amount',
+                'payments.installment_number',
+                'payments.total_installments',
+                'payments.created_at as due_date',
+                'payments.status as payment_status'
+            )
+            ->get();
+    }
+
+    public function getDetailedLipaKidogoDebts()
+    {
+        return $this->lipaKidogoPlans()
+            ->where('lipa_kidogo.status', 'active')
+            ->join('lipa_kidogo_installments', 'lipa_kidogo.id', '=', 'lipa_kidogo_installments.lipa_kidogo_id')
+            ->join('materials', 'lipa_kidogo.material_id', '=', 'materials.id')
+            ->where('lipa_kidogo_installments.status', '!=', 'paid')
+            ->select(
+                'materials.name as material_name',
+                'lipa_kidogo_installments.amount',
+                'lipa_kidogo_installments.installment_number',
+                'lipa_kidogo.num_installments as total_installments',
+                'lipa_kidogo_installments.due_date',
+                'lipa_kidogo_installments.status as installment_status'
+            )
+            ->get();
+    }
 }

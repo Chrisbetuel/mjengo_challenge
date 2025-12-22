@@ -120,7 +120,7 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('materials.*') ? 'active' : '' }}"
                                    href="{{ route('materials.index') }}">
-                                    <i class="fas fa-bricks me-2"></i> Materials
+                                    <i class="fas fa-shopping-cart me-2"></i> Materials
                                 </a>
                             </li>
                             <li class="nav-item">

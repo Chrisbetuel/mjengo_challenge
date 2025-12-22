@@ -9,6 +9,7 @@ class HomeController extends Controller
 {
     public function index()
     {
+<<<<<<< HEAD
         try {
             // Get approved and featured testimonials from feedback table
             $testimonials = Feedback::with('user')
@@ -22,8 +23,16 @@ class HomeController extends Controller
             // If database is not available, use empty collection
             $testimonials = collect([]);
         }
+=======
+        // Get all resolved feedback from feedback table
+        $feedbacks = Feedback::with('user')
+            ->where('status', 'resolved')
+            ->latest()
+            ->take(10)
+            ->get();
+>>>>>>> 4e8a677 (chat system)
 
-        // Pass testimonials to the view
-        return view('home', compact('testimonials'));
+        // Pass feedbacks to the view
+        return view('home', compact('feedbacks'));
     }
 }

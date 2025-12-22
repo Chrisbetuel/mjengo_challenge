@@ -125,7 +125,7 @@
         <div class="col-12">
             <div class="testimonials-container">
                 <div class="testimonials-slider">
-                    @foreach($testimonials as $testimonial)
+                    @foreach($feedbacks as $feedback)
                     <div class="testimonial-card {{ $loop->first ? 'active' : '' }}">
                         <div class="testimonial-content">
                             <div class="rating-stars mb-3">
@@ -134,24 +134,24 @@
                                     <i class="fas fa-star text-oweru-gold"></i>
                                 @endfor
                             </div>
-                            <p class="testimonial-text">"{{ $testimonial->message }}"</p>
+                            <p class="testimonial-text">"{{ $feedback->message }}"</p>
                             <div class="testimonial-author">
                                 <div class="author-avatar">
-                                    {{ strtoupper(substr($testimonial->user->username, 0, 1)) }}
+                                    {{ strtoupper(substr($feedback->user->username, 0, 1)) }}
                                 </div>
                                 <div class="author-info">
-                                    <h6 class="author-name mb-1 futura-font">{{ $testimonial->user->username }}</h6>
-                                    <p class="author-role text-oweru-gray mb-0 poppins-font">Oweru User</p>
+                                    <h6 class="author-name mb-1 futura-font">{{ $feedback->user->username }}</h6>
+                                    <p class="author-role text-oweru-gray mb-0 poppins-font">{{ ucfirst($feedback->type) }} Feedback</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     @endforeach
                 </div>
-                
+
                 <!-- Testimonial Navigation Dots -->
                 <div class="testimonial-dots">
-                    @foreach($testimonials as $testimonial)
+                    @foreach($feedbacks as $feedback)
                     <span class="dot {{ $loop->first ? 'active' : '' }}" data-index="{{ $loop->index }}"></span>
                     @endforeach
                 </div>
@@ -196,7 +196,7 @@
                 <div class="card-body p-5">
                     <div class="feature-icon-wrapper mb-4">
                         <div class="feature-icon bg-oweru-blue bg-gradient rounded-3 d-inline-flex align-items-center justify-content-center">
-                            <i class="fas fa-bricks fa-2x text-white"></i>
+                            <i class="fa fa-user fa-2x text-white"></i>
                         </div>
                     </div>
                     <h5 class="card-title fw-bold fs-4 text-oweru-dark futura-font">{{ __('messages.material_purchase') }}</h5>

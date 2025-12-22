@@ -91,14 +91,73 @@
                     </div>
                 </div>
                 
+                @php
+                    $debtBreakdown = $userParticipant->getDebtBreakdown();
+                @endphp
+
+                @if($userParticipant->hasDebt())
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Outstanding Debt</h6>
+                    <p class="mb-2">You have accumulated debt from missed payment days.</p>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <small class="text-muted">Expected</small>
+                            <div class="fw-bold">TZS {{ number_format($debtBreakdown['expected_total'], 2) }}</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Paid</small>
+                            <div class="fw-bold text-success">TZS {{ number_format($debtBreakdown['paid_total'], 2) }}</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Debt</small>
+                            <div class="fw-bold text-danger">TZS {{ number_format($debtBreakdown['accumulated_debt'], 2) }}</div>
+                        </div>
+                    </div>
+                    <small class="text-muted">Missed {{ $debtBreakdown['missed_days'] }} payment days</small>
+                    <div class="mt-3">
+                        <a href="{{ route('penalties.index') }}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-exclamation-triangle me-1"></i>View Penalties
+                        </a>
+                    </div>
+                </div>
+
                 <div class="mt-4">
+                    <h6>Pay Your Debt</h6>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <form action="{{ route('challenges.payment', $challenge->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="payment_type" value="debt">
+                                <input type="hidden" name="amount" value="{{ $debtBreakdown['accumulated_debt'] }}">
+                                <button type="submit" class="btn btn-warning btn-lg w-100">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    Pay Full Debt (TZS {{ number_format($debtBreakdown['accumulated_debt'], 2) }})
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-12">
+                            <form action="{{ route('challenges.payment', $challenge->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="payment_type" value="debt_installment">
+                                <button type="submit" class="btn btn-outline-warning btn-lg w-100">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Pay Debt in Installments
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="mt-4">
+                    <h6>Make Regular Payment</h6>
                     <div class="mb-3">
                         <form action="{{ route('challenges.payment', $challenge->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="payment_type" value="direct">
                             <button type="submit" class="btn btn-primary btn-lg w-100">
                                 <i class="fas fa-money-bill-wave me-2"></i>
-                                Pay Now
+                                Pay Today's Amount (TZS {{ number_format($challenge->daily_amount, 2) }})
                             </button>
                         </form>
                     </div>

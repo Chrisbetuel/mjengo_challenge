@@ -315,6 +315,7 @@
     --oweru-gray: #889898;
 }
 
+/* Color Classes */
 .bg-oweru-dark { background-color: var(--oweru-dark) !important; }
 .bg-oweru-gold { background-color: var(--oweru-gold) !important; }
 .bg-oweru-light { background-color: var(--oweru-light) !important; }
@@ -328,6 +329,7 @@
 .text-oweru-secondary { color: var(--oweru-secondary) !important; }
 .text-oweru-gray { color: var(--oweru-gray) !important; }
 
+/* Button Styles */
 .btn-oweru-gold {
     background-color: var(--oweru-gold);
     border-color: var(--oweru-gold);
@@ -347,7 +349,7 @@
     color: var(--oweru-dark);
 }
 
-/* Oweru Logo Styling */
+/* Logo Styling */
 .oweru-logo {
     font-family: 'Futura PT', sans-serif;
     font-size: 3rem;
@@ -374,7 +376,7 @@
     font-family: 'Poppins', Arial, sans-serif;
 }
 
-/* Slideshow Background */
+/* Background */
 .slideshow-background {
     position: fixed;
     top: 0;
@@ -414,93 +416,50 @@
     min-height: 100vh;
 }
 
+/* Cards */
 .content-card {
-    backdrop-filter: blur(10px);
     background: rgba(248, 248, 249, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.challenge-card {
+/* Navigation Cards */
+.nav-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
     transition: all 0.3s ease;
-    border: 1px solid rgba(0,0,0,0.1);
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.challenge-card:hover {
+.nav-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.glow-button {
-    position: relative;
-    overflow: hidden;
+/* Dashboard Cards */
+.dashboard-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.glow-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.5s;
+.card-icon {
+    margin-bottom: 15px;
 }
 
-.glow-button:hover::before {
-    left: 100%;
-}
-
-.hover-grow {
-    transition: all 0.3s ease;
-}
-
-.hover-grow:hover {
-    transform: scale(1.05);
-}
-
-.hero-buttons {
-    position: relative;
-    z-index: 2;
-}
-
-.challenges-grid {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.challenges-grid::-webkit-scrollbar {
-    width: 6px;
-}
-
-.challenges-grid::-webkit-scrollbar-track {
-    background: rgba(248, 248, 249, 0.5);
-    border-radius: 3px;
-}
-
-.challenges-grid::-webkit-scrollbar-thumb {
-    background: var(--oweru-gold);
-    border-radius: 3px;
-}
-
-.challenges-grid::-webkit-scrollbar-thumb:hover {
-    background: #b58120;
-}
-
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
-    .display-3 {
-        font-size: 2.5rem;
-    }
-
-    .lead.fs-2 {
-        font-size: 1.5rem !important;
-    }
-
-    .content-card {
-        margin-top: 2rem;
-    }
-
     .oweru-logo {
         font-size: 2rem;
     }
@@ -509,14 +468,13 @@
         font-size: 2.5rem;
     }
 
-    .challenges-grid {
-        max-height: 50vh;
+    .nav-card {
+        margin-bottom: 10px;
     }
 }
 
-/* Import Fonts */
+/* Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-/* Futura PT is a premium font - using Arial as fallback */
 </style>
 
 <script>

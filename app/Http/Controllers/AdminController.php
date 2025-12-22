@@ -194,7 +194,44 @@ class AdminController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.penalties.index', compact('penalties'));
+        // Load debt information for each penalty's user
+        foreach ($penalties as $penalty) {
+            $penalty->user->challenge_debt = $penalty->user->getChallengeDebt();
+            $penalty->user->lipa_kidogo_debt = $penalty->user->getLipaKidogoDebt();
+            $penalty->user->total_debt = $penalty->user->getTotalDebt();
+        }
+
+        // Fetch all users with debts for penalty management
+        $usersWithDebts = User::where(function ($query) {
+            $query->whereHas('participants', function ($subQuery) {
+                $subQuery->where('participants.status', 'active')
+                    ->whereHas('challenge', function ($challengeQuery) {
+                        $challengeQuery->where('status', 'active');
+                    })
+                    ->whereHas('payments', function ($paymentQuery) {
+                        $paymentQuery->where('payments.status', '!=', 'paid');
+                    });
+            })
+            ->orWhereHas('lipaKidogoPlans', function ($subQuery) {
+                $subQuery->where('status', 'active')
+                    ->whereHas('installments', function ($installmentQuery) {
+                        $installmentQuery->where('status', '!=', 'paid');
+                    });
+            });
+        })
+        ->with(['participants.challenge', 'lipaKidogoPlans.material'])
+        ->paginate(20, ['*'], 'users_page');
+
+        // Load debt information for users with debts
+        foreach ($usersWithDebts as $user) {
+            $user->challenge_debt = $user->getChallengeDebt();
+            $user->lipa_kidogo_debt = $user->getLipaKidogoDebt();
+            $user->total_debt = $user->getTotalDebt();
+            $user->detailed_challenge_debts = $user->getDetailedChallengeDebts();
+            $user->detailed_lipa_kidogo_debts = $user->getDetailedLipaKidogoDebts();
+        }
+
+        return view('admin.penalties.index', compact('penalties', 'usersWithDebts'));
     }
 
     public function resolvePenalty(Request $request, $id)
@@ -203,6 +240,73 @@ class AdminController extends Controller
         $penalty->markAsResolved();
 
         return redirect()->back()->with('success', 'Penalty resolved successfully.');
+    }
+
+    public function createPenalty()
+    {
+        // Get users with debts for penalty creation
+        $usersWithDebts = User::where(function ($query) {
+            $query->whereHas('participants', function ($subQuery) {
+                $subQuery->where('participants.status', 'active')
+                    ->whereHas('challenge', function ($challengeQuery) {
+                        $challengeQuery->where('status', 'active');
+                    })
+                    ->whereHas('payments', function ($paymentQuery) {
+                        $paymentQuery->where('payments.status', '!=', 'paid');
+                    });
+            })
+            ->orWhereHas('lipaKidogoPlans', function ($subQuery) {
+                $subQuery->where('status', 'active')
+                    ->whereHas('installments', function ($installmentQuery) {
+                        $installmentQuery->where('status', '!=', 'paid');
+                    });
+            });
+        })
+        ->with(['participants.challenge', 'lipaKidogoPlans.material'])
+        ->get();
+
+        // Load debt information for users
+        foreach ($usersWithDebts as $user) {
+            $user->challenge_debt = $user->getChallengeDebt();
+            $user->lipa_kidogo_debt = $user->getLipaKidogoDebt();
+            $user->total_debt = $user->getTotalDebt();
+        }
+
+        return view('admin.penalties.create', compact('usersWithDebts'));
+    }
+
+    public function storePenalty(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'penalty_type' => 'required|in:late_payment,missed_payment,group_violation',
+            'amount' => 'required|numeric|min:1000',
+            'reason' => 'required|string|max:1000',
+            'challenge_id' => 'nullable|exists:challenges,id',
+        ]);
+
+        // Verify user has debts if penalty is related to payments
+        $user = User::findOrFail($request->user_id);
+        if (in_array($request->penalty_type, ['late_payment', 'missed_payment'])) {
+            $totalDebt = $user->getTotalDebt();
+            if ($totalDebt <= 0) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['user_id' => 'Selected user has no outstanding debts.']);
+            }
+        }
+
+        Penalty::create([
+            'user_id' => $request->user_id,
+            'challenge_id' => $request->challenge_id,
+            'penalty_type' => $request->penalty_type,
+            'amount' => $request->amount,
+            'reason' => $request->reason,
+            'status' => 'active',
+        ]);
+
+        return redirect()->route('admin.penalties')
+            ->with('success', 'Penalty created successfully!');
     }
 
     public function payments()

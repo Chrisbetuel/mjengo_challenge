@@ -85,18 +85,28 @@ Route::middleware(['auth'])->group(function () {
     // Direct Purchases
     Route::get('/direct-purchases', [MaterialController::class, 'directPurchases'])->name('direct_purchases.index');
     Route::get('/direct-purchases/{purchase}', [MaterialController::class, 'showDirectPurchase'])->name('direct_purchases.show');
-    Route::post('/direct-purchases', [MaterialController::class, 'storeDirectPurchase'])->name('direct_purchases.store');
+    Route::post('/materials/{material}/direct-purchase', [MaterialController::class, 'directPurchase'])->name('materials.direct-purchase');
 
     // Lipa Kidogo
     Route::get('/lipa-kidogo', [MaterialController::class, 'lipaKidogo'])->name('lipa_kidogo.index');
     Route::get('/lipa-kidogo/{plan}', [MaterialController::class, 'showLipaKidogo'])->name('lipa_kidogo.show');
-    Route::post('/lipa-kidogo', [MaterialController::class, 'storeLipaKidogo'])->name('lipa_kidogo.store');
+    Route::post('/materials/{material}/lipa-kidogo', [MaterialController::class, 'lipaKidogoPurchase'])->name('materials.lipa-kidogo');
+    Route::post('/lipa-kidogo/{lipaKidogoId}/installment/{installmentId}/pay', [MaterialController::class, 'payLipaKidogoInstallment'])->name('lipa_kidogo.pay_installment');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
+<<<<<<< HEAD
     // Chatbot API Routes (for authenticated users) - using ApiChatbotController
+=======
+    // Penalties (User can view their own penalties)
+    Route::get('/penalties', [DashboardController::class, 'penalties'])->name('penalties.index');
+    Route::get('/penalties/{penalty}', [DashboardController::class, 'showPenalty'])->name('penalties.show');
+    Route::post('/penalties/{penalty}/appeal', [DashboardController::class, 'appealPenalty'])->name('penalties.appeal');
+
+    // Chatbot API Routes (for authenticated users)
+>>>>>>> 4e8a677 (chat system)
     Route::prefix('api/chatbot')->name('chatbot.')->group(function () {
         Route::post('/send', [ApiChatbotController::class, 'sendMessage'])->name('send');
         Route::get('/history', [ApiChatbotController::class, 'getHistory'])->name('history');
@@ -148,7 +158,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Penalty Management
     Route::get('/penalties', [AdminController::class, 'penalties'])->name('penalties');
+    Route::get('/penalties/create', [AdminController::class, 'createPenalty'])->name('penalties.create');
+    Route::post('/penalties', [AdminController::class, 'storePenalty'])->name('penalties.store');
     Route::get('/penalties/{penalty}', [AdminController::class, 'showPenalty'])->name('penalties.show');
+    Route::post('/penalties/{penalty}/resolve', [AdminController::class, 'resolvePenalty'])->name('penalties.resolve');
 
     // Notification Management
     Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
@@ -170,6 +183,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Reports
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
 });
+
+
+Route::post('/payments/lipa-kidogo/callback', [MaterialController::class, 'handleLipaKidogoCallback'])->name('lipa_kidogo.callback');
 
 // Chatbot Routes
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');

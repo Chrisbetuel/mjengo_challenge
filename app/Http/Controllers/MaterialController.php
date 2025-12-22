@@ -118,7 +118,15 @@ class MaterialController extends Controller
             // Log activity
             ActivityLog::logMaterialPurchase(Auth::id(), $material->id, $totalAmount, 'installment');
 
-            return redirect()->away($result['payment_url']);
+            // Check if response contains payment URL (try multiple possible field names)
+            $paymentUrl = $result['payment_url'] ?? $result['redirect_url'] ?? $result['payment_link'] ?? null;
+            if ($paymentUrl && !empty($paymentUrl)) {
+                return redirect()->away($paymentUrl);
+            } else {
+                $lipaKidogo->update(['status' => 'failed']);
+                return redirect()->route('materials.index')
+                    ->with('error', 'Lipa Kidogo payment initiation failed: Payment URL not received from Selcom');
+            }
         } catch (\Exception $e) {
             $lipaKidogo->update(['status' => 'failed']);
             return redirect()->route('materials.index')
@@ -223,7 +231,14 @@ class MaterialController extends Controller
                 'status' => 'pending',
             ]);
 
-            return redirect()->away($result['payment_url']);
+            // Check if response contains payment URL (try multiple possible field names)
+            $paymentUrl = $result['payment_url'] ?? $result['redirect_url'] ?? $result['payment_link'] ?? null;
+            if ($paymentUrl && !empty($paymentUrl)) {
+                return redirect()->away($paymentUrl);
+            } else {
+                $installment->update(['status' => 'failed']);
+                return redirect()->back()->with('error', 'Payment initiation failed: Payment URL not received from Selcom');
+            }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Payment initiation failed: ' . $e->getMessage());
         }

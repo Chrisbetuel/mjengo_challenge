@@ -219,6 +219,9 @@
                         <a href="{{ route('materials.index') }}" class="nav-link-item materials">
                             <i class="fas fa-shopping-cart me-2"></i>Materials
                         </a>
+                        <a href="{{ route('penalties.index') }}" class="nav-link-item" style="background: #dc3545; color: white;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Penalties
+                        </a>
                         <a href="{{ route('groups.index') }}" class="nav-link-item groups">
                             <i class="fas fa-users me-2"></i>Groups
                         </a>
@@ -263,13 +266,16 @@
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="stats-card">
-                    <div class="stats-icon purple">
-                        <i class="fas fa-clock"></i>
+                <a href="{{ route('penalties.index') }}" class="text-decoration-none">
+                    <div class="stats-card">
+                        <div class="stats-icon" style="background: #dc3545;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="mb-2">{{ Auth::user()->penalties()->whereIn('status', ['active', 'overdue'])->count() }}</h3>
+                        <p class="mb-0 text-muted">Active Penalties</p>
+                        <small class="text-danger">Click to view details</small>
                     </div>
-                    <h3 class="mb-2">{{ $recentPayments->count() }}</h3>
-                    <p class="mb-0 text-muted">Recent Payments</p>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -304,6 +310,7 @@
                                     $totalDays = $participant->challenge->start_date->diffInDays($participant->challenge->end_date);
                                     $currentDays = $participant->challenge->start_date->diffInDays(now());
                                     $progress = $totalDays > 0 ? min(100, ($currentDays / $totalDays) * 100) : 0;
+                                    $debtBreakdown = $participant->debt_breakdown ?? $participant->getDebtBreakdown();
                                 @endphp
                                 <div class="mt-2">
                                     <small class="text-muted">Progress: {{ round($progress) }}% (TZS {{ number_format($paid, 2) }} paid)</small>
@@ -311,13 +318,21 @@
                                         <div class="progress-bar bg-success" style="width: {{ $progress }}%"></div>
                                     </div>
                                 </div>
+
+                                @if($participant->has_debt)
+                                <div class="mt-2 p-2 bg-warning bg-opacity-10 border border-warning rounded">
+                                    <small class="text-warning fw-bold">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Debt: TZS {{ number_format($debtBreakdown['accumulated_debt'], 2) }}
+                                        ({{ $debtBreakdown['missed_days'] }} missed days)
+                                    </small>
+                                </div>
+                                @endif
                                 <div class="mt-3 d-flex gap-2">
                                     <a href="{{ route('challenges.show', $participant->challenge) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye me-1"></i>View Details
                                     </a>
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#paymentModal{{ $participant->id }}">
-                                        <i class="fas fa-money-bill-wave me-1"></i>Pay Now
-                                    </button>
+                                    
                                 </div>
 
                                 <!-- Payment Modal -->

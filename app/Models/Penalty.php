@@ -51,6 +51,11 @@ class Penalty extends Model
         return $this->status === 'resolved';
     }
 
+    public function isOverdue()
+    {
+        return $this->status === 'overdue';
+    }
+
     public function markAsResolved()
     {
         $this->update([
@@ -62,6 +67,11 @@ class Penalty extends Model
     public function appeal()
     {
         $this->update(['status' => 'appealed']);
+    }
+
+    public function markAsOverdue()
+    {
+        $this->update(['status' => 'overdue']);
     }
 
     public function getPenaltyTypeText()
@@ -88,5 +98,10 @@ class Penalty extends Model
     public function scopeResolved($query)
     {
         return $query->where('status', 'resolved');
+    }
+
+    public function scopeOverdue($query)
+    {
+        return $query->where('status', 'overdue');
     }
 }
