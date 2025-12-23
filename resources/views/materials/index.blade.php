@@ -262,41 +262,42 @@
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">User Type</label>
-                            <div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="user_type"
-                                           id="businessman{{ $material->id }}" value="businessman" required>
-                                    <label class="form-check-label" for="businessman{{ $material->id }}">Businessman</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="user_type"
-                                           id="employed{{ $material->id }}" value="employed">
-                                    <label class="form-check-label" for="employed{{ $material->id }}">Employed</label>
-                                </div>
-                            </div>
+                            <label for="quantity_lk{{ $material->id }}" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity_lk{{ $material->id }}"
+                                   name="quantity" value="1" min="1" required>
                         </div>
                         <div class="mb-3">
-                            <label for="payment_duration{{ $material->id }}" class="form-label">Payment Duration</label>
-                            <select class="form-select" id="payment_duration{{ $material->id }}" name="payment_duration" required>
-                                <option value="daily">Daily</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
+                            <label for="installments{{ $material->id }}" class="form-label">Number of Installments</label>
+                            <select class="form-select" id="installments{{ $material->id }}" name="installments" required>
+                                <option value="">Select installments</option>
+                                <option value="3">3 Installments</option>
+                                <option value="6">6 Installments</option>
+                                <option value="12">12 Installments</option>
+                                <option value="24">24 Installments</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="start_date{{ $material->id }}" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start_date{{ $material->id }}"
-                                   name="start_date" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}" required>
+                            <label for="delivery_address_lk{{ $material->id }}" class="form-label">Delivery Address</label>
+                            <textarea class="form-control" id="delivery_address_lk{{ $material->id }}"
+                                      name="delivery_address" rows="3" required
+                                      placeholder="Enter your complete delivery address"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number_lk{{ $material->id }}" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number_lk{{ $material->id }}"
+                                   name="phone_number" value="{{ auth()->user()->phone_number ?? '' }}" required>
                         </div>
                         <div class="alert alert-info">
                             <strong>Total Amount:</strong> TZS {{ number_format($material->price, 2) }}<br>
-                            <small>Installment amounts will be calculated based on your preferences</small>
+                            <strong>Per Installment:</strong> <span id="installmentAmount{{ $material->id }}">Select installments to see amount</span>
+                        </div>
+                        <div class="alert alert-warning">
+                            <small><i class="fas fa-info-circle me-1"></i>Lipa Kidogo allows you to pay for materials in installments over time.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Pay Now</button>
+                        <button type="submit" class="btn btn-success">Start Lipa Kidogo Plan</button>
                     </div>
                 </form>
             </div>
@@ -539,6 +540,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 maximumFractionDigits: 2
             });
         });
+    }
+
+    // Update installment amount when installments change in Lipa Kidogo modal
+    const installmentsSelect{{ $material->id }} = document.getElementById('installments{{ $material->id }}');
+    const installmentAmountSpan{{ $material->id }} = document.getElementById('installmentAmount{{ $material->id }}');
+    const quantityLkInput{{ $material->id }} = document.getElementById('quantity_lk{{ $material->id }}');
+
+    function updateInstallmentAmount{{ $material->id }}() {
+        const installments = parseInt(installmentsSelect{{ $material->id }}.value) || 0;
+        const quantity = parseInt(quantityLkInput{{ $material->id }}.value) || 1;
+        const totalAmount = quantity * unitPrice{{ $material->id }};
+
+        if (installments > 0) {
+            const installmentAmount = totalAmount / installments;
+            installmentAmountSpan{{ $material->id }}.textContent = 'TZS ' + installmentAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        } else {
+            installmentAmountSpan{{ $material->id }}.textContent = 'Select installments to see amount';
+        }
+    }
+
+    if (installmentsSelect{{ $material->id }} && installmentAmountSpan{{ $material->id }}) {
+        installmentsSelect{{ $material->id }}.addEventListener('change', updateInstallmentAmount{{ $material->id }});
+        quantityLkInput{{ $material->id }}.addEventListener('input', updateInstallmentAmount{{ $material->id }});
+        // Initial calculation
+        updateInstallmentAmount{{ $material->id }}();
     }
     @endforeach
 });

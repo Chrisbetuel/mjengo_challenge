@@ -51,31 +51,31 @@
         <div class="col-12">
             <div class="navigation-cards">
                 <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="{{ route('dashboard') }}" class="nav-card bg-oweru-blue text-white">
+                    <a href="{{ route('dashboard') }}" class="nav-card bg-oweru-blue text-white animate-card">
                         <i class="fas fa-chart-line fa-lg mb-2"></i>
                         <span class="futura-font fw-bold">Dashboard</span>
                     </a>
-                    <a href="{{ route('challenges.index') }}" class="nav-card bg-oweru-gold text-oweru-dark">
+                    <a href="{{ route('challenges.index') }}" class="nav-card bg-oweru-gold text-oweru-dark animate-card active">
                         <i class="fas fa-trophy fa-lg mb-2"></i>
                         <span class="futura-font fw-bold">Challenges</span>
                     </a>
-                    <a href="{{ route('materials.index') }}" class="nav-card bg-oweru-secondary text-oweru-dark">
+                    <a href="{{ route('materials.index') }}" class="nav-card bg-oweru-secondary text-oweru-dark animate-card">
                         <i class="fas fa-shopping-cart fa-lg mb-2"></i>
                         <span class="futura-font fw-bold">Materials</span>
                     </a>
-                    <a href="{{ route('groups.index') }}" class="nav-card bg-oweru-dark text-white">
+                    <a href="{{ route('groups.index') }}" class="nav-card bg-oweru-dark text-white animate-card">
                         <i class="fas fa-users fa-lg mb-2"></i>
                         <span class="futura-font fw-bold">Groups</span>
                     </a>
                     @if(Auth::user()->isAdmin())
-                    <a href="{{ route('admin.dashboard') }}" class="nav-card bg-oweru-gray text-white">
+                    <a href="{{ route('admin.dashboard') }}" class="nav-card bg-oweru-gray text-white animate-card">
                         <i class="fas fa-cog fa-lg mb-2"></i>
                         <span class="futura-font fw-bold">Admin Panel</span>
                     </a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}" class="d-inline">
                         @csrf
-                        <button type="submit" class="nav-card bg-danger text-white border-0">
+                        <button type="submit" class="nav-card bg-danger text-white border-0 animate-card">
                             <i class="fas fa-sign-out-alt fa-lg mb-2"></i>
                             <span class="futura-font fw-bold">Logout</span>
                         </button>
@@ -89,7 +89,7 @@
     <div class="row g-4">
         <!-- Total Challenges Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-gold text-oweru-dark text-center">
+            <div class="dashboard-card bg-oweru-gold text-oweru-dark text-center animate-card">
                 <div class="card-icon mb-3">
                     <i class="fas fa-trophy fa-2x"></i>
                 </div>
@@ -100,7 +100,7 @@
 
         <!-- My Active Challenges Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-blue text-white text-center">
+            <div class="dashboard-card bg-oweru-blue text-white text-center animate-card">
                 <div class="card-icon mb-3">
                     <i class="fas fa-star fa-2x"></i>
                 </div>
@@ -111,7 +111,7 @@
 
         <!-- Total Participants Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-secondary text-oweru-dark text-center">
+            <div class="dashboard-card bg-oweru-secondary text-oweru-dark text-center animate-card">
                 <div class="card-icon mb-3">
                     <i class="fas fa-users fa-2x"></i>
                 </div>
@@ -122,7 +122,7 @@
 
         <!-- Available Slots Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="dashboard-card bg-oweru-dark text-white text-center">
+            <div class="dashboard-card bg-oweru-dark text-white text-center animate-card">
                 <div class="card-icon mb-3">
                     <i class="fas fa-plus-circle fa-2x"></i>
                 </div>
@@ -144,7 +144,7 @@
 
                 <div class="content-cards">
                     @foreach($userChallenges as $participant)
-                        <div class="content-card">
+                        <div class="content-card animate-card">
                             <div class="card-header d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="futura-font fw-bold text-oweru-dark mb-0">{{ $participant->challenge->name }}</h5>
                                 <span class="badge bg-oweru-gold text-oweru-dark futura-font">{{ ucfirst($participant->status) }}</span>
@@ -200,7 +200,7 @@
                 @if($challenges->count() > 0)
                     <div class="content-cards">
                         @foreach($challenges as $challenge)
-                            <div class="content-card">
+                            <div class="content-card animate-card">
                                 <div class="card-header d-flex justify-content-between align-items-start mb-2">
                                     <h5 class="futura-font fw-bold text-oweru-dark mb-0">{{ $challenge->name }}</h5>
                                     <span class="badge bg-oweru-gold text-oweru-dark futura-font">Active</span>
@@ -235,9 +235,9 @@
                                             <i class="fas fa-check me-1"></i>Already Joined
                                         </button>
                                     @elseif($availableSlots > 0)
-                                        <form action="{{ route('challenges.index', $challenge->id) }}" method="POST">
+                                        <form action="{{ route('challenges.participate', $challenge->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-oweru-gold btn-sm w-100 text-oweru-dark">
+                                            <button type="submit" class="btn btn-oweru-gold btn-sm w-100 text-oweru-dark glow-button">
                                                 <i class="fas fa-plus me-1"></i>Join Challenge
                                             </button>
                                         </form>
@@ -376,16 +376,70 @@
     backdrop-filter: blur(10px);
     background: rgba(248, 248, 249, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    background: rgba(248, 248, 249, 0.98);
 }
 
 .challenge-card {
     transition: all 0.3s ease;
     border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
 }
 
 .challenge-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.nav-card {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.nav-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.nav-card.active {
+    box-shadow: 0 8px 25px rgba(201, 137, 40, 0.3);
+}
+
+.dashboard-card {
+    padding: 2rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.animate-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .glow-button {
@@ -457,6 +511,7 @@
 
     .content-card {
         margin-top: 2rem;
+        padding: 1.5rem;
     }
 
     .oweru-logo {
@@ -469,6 +524,47 @@
 
     .challenges-grid {
         max-height: 50vh;
+    }
+
+    .nav-card {
+        padding: 0.75rem 1rem;
+        margin: 0.25rem;
+    }
+
+    .dashboard-card {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .navigation-cards .d-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navigation-cards .gap-3 {
+        gap: 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .oweru-logo {
+        font-size: 1.5rem;
+    }
+
+    .oweru-o {
+        font-size: 2rem;
+    }
+
+    .futura-font {
+        font-size: 0.9rem;
+    }
+
+    .display-6 {
+        font-size: 1.8rem;
+    }
+
+    .card-icon i {
+        font-size: 1.5rem;
     }
 }
 
@@ -507,21 +603,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
 
-    // Observe content card
-    const contentCard = document.querySelector('.content-card');
-    if (contentCard) {
-        contentCard.style.opacity = '0';
-        contentCard.style.transform = 'translateX(30px)';
-        contentCard.style.transition = 'all 0.8s ease';
-        observer.observe(contentCard);
-    }
+    // Observe content cards
+    document.querySelectorAll('.content-card').forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        observer.observe(card);
+    });
 
-    // Observe challenge cards
-    document.querySelectorAll('.challenge-card').forEach(card => {
+    // Observe dashboard cards
+    document.querySelectorAll('.dashboard-card').forEach((card, index) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.5s ease';
+        card.style.transition = `all 0.5s ease ${index * 0.1}s`;
         observer.observe(card);
+    });
+
+    // Observe nav cards
+    document.querySelectorAll('.nav-card').forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(15px)';
+        card.style.transition = `all 0.4s ease ${index * 0.05}s`;
+        observer.observe(card);
+    });
+
+    // Add loading animation for buttons
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitted:', this.action);
+            const button = this.querySelector('button[type="submit"]');
+            if (button) {
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+                button.disabled = true;
+                // Re-enable after a short delay in case of validation errors
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-plus me-1"></i>Join Challenge';
+                }, 3000);
+            }
+        });
     });
 });
 </script>

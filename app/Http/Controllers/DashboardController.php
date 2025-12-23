@@ -28,13 +28,15 @@ class DashboardController extends Controller
 
         $activeChallenges = $user->participants()
             ->with('challenge')
-            ->where('participants.status', 'active')
+            ->where('status', 'active')
             ->get()
             ->map(function ($participant) {
                 $participant->debt_breakdown = $participant->getDebtBreakdown();
                 $participant->has_debt = $participant->hasDebt();
                 return $participant;
             });
+
+
 
         $recentPayments = Payment::whereHas('participant', function ($query) use ($user) {
             $query->where('user_id', $user->id);

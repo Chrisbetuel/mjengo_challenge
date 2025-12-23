@@ -175,13 +175,6 @@
                             <i class="fas fa-shopping-cart me-2"></i>Buy Now
                             <br><small class="text-oweru-dark">Full Payment</small>
                         </button>
-
-                        <!-- Lipa Kidogo Button -->
-                        <button type="button" class="btn btn-oweru-secondary btn-lg" data-bs-toggle="modal"
-                                data-bs-target="#lipaKidogoModal">
-                            <i class="fas fa-calendar-alt me-2"></i>Lipa Kidogo
-                            <br><small class="text-oweru-dark">Installment Plan</small>
-                        </button>
                     </div>
 
                     <div class="mt-4 p-3 bg-light rounded">
@@ -241,58 +234,7 @@
     </div>
 </div>
 
-<!-- Lipa Kidogo Modal -->
-<div class="modal fade" id="lipaKidogoModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Lipa Kidogo - {{ $material->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('materials.lipa-kidogo', $material->id) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">User Type</label>
-                        <div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="user_type"
-                                       id="businessman" value="businessman" required>
-                                <label class="form-check-label" for="businessman">Businessman</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="user_type"
-                                       id="employed" value="employed">
-                                <label class="form-check-label" for="employed">Employed</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="payment_duration" class="form-label">Payment Duration</label>
-                        <select class="form-select" id="payment_duration" name="payment_duration" required>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="start_date"
-                               name="start_date" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}" required>
-                    </div>
-                    <div class="alert alert-info">
-                        <strong>Total Amount:</strong> TZS {{ number_format($material->price, 2) }}<br>
-                        <small>Installment amounts will be calculated based on your preferences</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Pay Now</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 
 <style>
 /* Oweru Brand Colors */

@@ -536,56 +536,72 @@
             <div class="col-12 col-lg-4 mb-4">
                 <div class="challenge-card">
                     <h4 class="section-title">
-                        <i class="fas fa-shopping-bag"></i>My Lipa Kidogo Plans
+                        <i class="fas fa-calendar-alt"></i>My Lipa Kidogo Plans
                     </h4>
                     @if($lipaKidogoPlans->count() > 0)
                         @foreach($lipaKidogoPlans as $plan)
                             <div class="mb-3 p-3 border rounded">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="mb-0">{{ $plan->material->name }}</h6>
-                                    <span class="badge bg-info">{{ ucfirst($plan->status) }}</span>
+                                    <span class="badge bg-{{ $plan->status == 'active' ? 'success' : ($plan->status == 'completed' ? 'primary' : 'warning') }}">{{ ucfirst($plan->status) }}</span>
                                 </div>
-                                <p class="text-muted small mb-2">{{ Str::limit($plan->material->description, 80) }}</p>
+                                <p class="text-muted small mb-2">{{ Str::limit($plan->material->description, 60) }}</p>
                                 <div class="row text-center">
-                                    <div class="col-4">
-                                        <small class="text-muted">Total</small>
-                                        <div class="fw-bold">TZS {{ number_format($plan->total_amount, 2) }}</div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Installments</small>
+                                        <div class="fw-bold">{{ $plan->num_installments }}</div>
                                     </div>
-                                    <div class="col-4">
-                                        <small class="text-muted">Paid</small>
-                                        <div class="fw-bold text-success">TZS {{ number_format($plan->getTotalPaid(), 2) }}</div>
-                                    </div>
-                                    <div class="col-4">
-                                        <small class="text-muted">Remaining</small>
-                                        <div class="fw-bold text-warning">TZS {{ number_format($plan->total_amount - $plan->getTotalPaid(), 2) }}</div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Per Installment</small>
+                                        <div class="fw-bold text-success">TZS {{ number_format($plan->installment_amount, 2) }}</div>
                                     </div>
                                 </div>
-                                @php
-                                    $paid = $plan->getTotalPaid();
-                                    $progress = $plan->total_amount > 0 ? min(100, ($paid / $plan->total_amount) * 100) : 0;
-                                @endphp
                                 <div class="mt-2">
-                                    <small class="text-muted">Progress: {{ round($progress) }}%</small>
-                                    <div class="progress mt-1">
-                                        <div class="progress-bar bg-info" style="width: {{ $progress }}%"></div>
+                                    <small class="text-muted">Paid: TZS {{ number_format($plan->paid_amount, 2) }} / TZS {{ number_format($plan->total_amount, 2) }}</small>
+                                    @php
+                                        $progress = $plan->total_amount > 0 ? ($plan->paid_amount / $plan->total_amount) * 100 : 0;
+                                    @endphp
+                                    <div class="progress mt-1" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: {{ $progress }}%"></div>
                                     </div>
                                 </div>
-                                <div class="mt-3">
-                                    <a href="{{ route('lipa_kidogo.show', $plan->id) }}" class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-eye me-1"></i>View Detail
+                                <div class="mt-2">
+                                    <small class="text-muted">{{ $plan->created_at->format('M d, Y') }}</small>
+                                </div>
+                                <div class="mt-3 d-flex gap-2">
+                                    <a href="{{ route('lipa_kidogo.show', $plan->id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Plan
                                     </a>
+                                    @if($plan->status == 'active')
+                                        @php
+                                            $nextInstallment = $plan->installments()->where('status', 'pending')->orderBy('due_date')->first();
+                                        @endphp
+                                        @if($nextInstallment)
+                                            <form action="{{ route('lipa_kidogo.pay_installment', $plan->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-credit-card me-1"></i>Pay Installment
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
+                        <div class="text-center mt-3">
+                            <a href="{{ route('lipa_kidogo.index') }}" class="btn btn-outline-primary btn-sm">View All Plans</a>
+                        </div>
                     @else
                         <div class="empty-state">
-                            <i class="fas fa-shopping-bag"></i>
-                            <p>No active Lipa Kidogo plans. Start saving for materials!</p>
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No Lipa Kidogo plans yet. Buy materials in installments!</p>
                             <a href="{{ route('materials.index') }}" class="btn btn-oweru-gold btn-sm">Browse Materials</a>
                         </div>
                     @endif
                 </div>
             </div>
+
+
 
             <!-- Feedback Form -->
             <div class="col-12 col-lg-6 mb-4">

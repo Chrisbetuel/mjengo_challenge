@@ -328,6 +328,15 @@
                     <h3 class="mb-4">Actions</h3>
 
                     <div class="d-grid gap-2">
+                        @if($directPurchase->status === 'pending')
+                            <form action="{{ route('direct_purchases.pay_now', $directPurchase->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-oweru-gold">
+                                    <i class="fas fa-credit-card me-2"></i>Pay Now
+                                </button>
+                            </form>
+                        @endif
+
                         <a href="tel:{{ $directPurchase->phone_number }}" class="btn btn-outline-primary">
                             <i class="fas fa-phone me-2"></i>Call Support
                         </a>

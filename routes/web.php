@@ -70,7 +70,7 @@ Route::middleware(['auth'])->group(function () {
     // Challenges
     Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenges.index');
     Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show');
-    Route::post('/challenges/{challenge}/participate', [ChallengeController::class, 'participate'])->name('challenges.participate');
+    Route::post('/challenges/{id}/participate', [ChallengeController::class, 'participate'])->name('challenges.participate');
     Route::post('/challenges/{challengeId}/payment', [ChallengeController::class, 'makePayment'])->name('challenges.payment');
 
     // Groups
@@ -86,12 +86,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/direct-purchases', [MaterialController::class, 'directPurchases'])->name('direct_purchases.index');
     Route::get('/direct-purchases/{purchase}', [MaterialController::class, 'showDirectPurchase'])->name('direct_purchases.show');
     Route::post('/materials/{material}/direct-purchase', [MaterialController::class, 'directPurchase'])->name('materials.direct-purchase');
+    Route::post('/direct-purchases/{purchase}/pay-now', [MaterialController::class, 'payNow'])->name('direct_purchases.pay_now');
 
-    // Lipa Kidogo
-    Route::get('/lipa-kidogo', [MaterialController::class, 'lipaKidogo'])->name('lipa_kidogo.index');
-    Route::get('/lipa-kidogo/{plan}', [MaterialController::class, 'showLipaKidogo'])->name('lipa_kidogo.show');
+    // Lipa Kidogo (Installment Plans)
+    Route::get('/lipa-kidogo', [MaterialController::class, 'lipaKidogoPlans'])->name('lipa_kidogo.index');
+    Route::get('/lipa-kidogo/{plan}', [MaterialController::class, 'showLipaKidogoPlan'])->name('lipa_kidogo.show');
     Route::post('/materials/{material}/lipa-kidogo', [MaterialController::class, 'lipaKidogoPurchase'])->name('materials.lipa-kidogo');
-    Route::post('/lipa-kidogo/{lipaKidogoId}/installment/{installmentId}/pay', [MaterialController::class, 'payLipaKidogoInstallment'])->name('lipa_kidogo.pay_installment');
+    Route::post('/lipa-kidogo/{plan}/pay-installment', [MaterialController::class, 'payLipaKidogoInstallment'])->name('lipa_kidogo.pay_installment');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -182,7 +183,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 
-Route::post('/payments/lipa-kidogo/callback', [MaterialController::class, 'handleLipaKidogoCallback'])->name('lipa_kidogo.callback');
+
 
 // Chatbot Routes
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
