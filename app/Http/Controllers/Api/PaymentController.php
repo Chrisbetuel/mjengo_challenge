@@ -3,109 +3,89 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Payment;
-use App\Models\Participant;
-use App\Services\SelcomService;
 use Illuminate\Http\Request;
+use App\Models\LipaKidogo;
+use App\Models\LipaKidogoInstallment;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class PaymentController extends Controller
 {
-    protected $selcomService;
-
-    public function __construct(SelcomService $selcomService)
-    {
-        $this->selcomService = $selcomService;
-    }
-
     /**
-     * Get payments by user ID
+     * Get all Lipa Kidogo plans for the authenticated user
      */
-    public function getUserPayments($user_id)
+    public function getUserLipaKidogo(Request $request)
     {
-        $payments = Payment::where('user_id', $user_id)->get();
+        $user = $request->user();
+
+        $plans = LipaKidogo::with(['material', 'installments'])
+            ->where('user_id', $user->id)
+            ->get();
 
         return response()->json([
             'success' => true,
-            'data' => $payments
+            'data' => $plans,
         ]);
     }
 
     /**
-     * Create a new payment
+     * Get all installments for a specific plan
      */
-    public function store(Request $request)
+    public function getInstallments(Request $request, $planId)
     {
-        $request->validate([
-            'participant_id' => 'required|exists:participants,id',
-            'amount' => 'required|numeric|min:0.01',
-            'payment_type' => 'required|in:direct,lipa_kidogo',
-            'installment_number' => 'nullable|integer|min:1',
-            'total_installments' => 'nullable|integer|min:1',
+        $user = $request->user();
+
+        $plan = LipaKidogo::with('installments')
+            ->where('user_id', $user->id)
+            ->findOrFail($planId);
+
+        return response()->json([
+            'success' => true,
+            'data' => $plan->installments,
         ]);
+    }
 
-        try {
-            $participant = Participant::findOrFail($request->participant_id);
+    /**
+     * Pay a specific installment
+     */
+    public function payInstallment(Request $request, $installmentId)
+    {
+        $user = $request->user();
 
-            // Verify the authenticated user owns this participant record
-            if ($participant->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to participant'
-                ], 403);
-            }
+        $installment = LipaKidogoInstallment::with('lipaKidogo')
+            ->where('user_id', $user->id)
+            ->findOrFail($installmentId);
 
-            // Create payment record
-            $payment = Payment::create([
-                'participant_id' => $participant->id,
-                'amount' => $request->amount,
-                'status' => 'pending',
-                'payment_date' => now(),
-                'payment_method' => 'manual', // Changed from 'selcom' to 'manual'
-                'payment_type' => $request->payment_type,
-                'installment_number' => $request->installment_number,
-                'total_installments' => $request->total_installments,
-            ]);
-
-            Log::info('Payment created successfully', [
-                'payment_id' => $payment->id,
-                'participant_id' => $participant->id,
-                'amount' => $request->amount
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'data' => $payment,
-                'message' => 'Payment created successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Payment creation failed', [
-                'user_id' => Auth::id(),
-                'participant_id' => $request->participant_id,
-                'error' => $e->getMessage()
-            ]);
-
+        if ($installment->isPaid()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Payment initiation failed: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Installment already paid',
+            ], 400);
         }
-    }
 
-    /**
-     * Get payments by challenge ID
-     */
-    public function getChallengePayments($challenge_id)
-    {
-        $payments = Payment::whereHas('participant', function ($query) use ($challenge_id) {
-            $query->where('challenge_id', $challenge_id);
-        })->with('participant.user')->get();
+        // Optionally, check payment amount
+        $amountPaid = $request->input('amount', $installment->amount);
+
+        // Here you can integrate real payment logic (e.g., ZenoPay, PesaPal, Stripe)
+        // For now, we just mark it as paid
+        $installment->markAsPaid(Carbon::now());
 
         return response()->json([
             'success' => true,
-            'data' => $payments
+            'message' => 'Installment paid successfully',
+            'data' => $installment,
+        ]);
+    }
+
+    /**
+     * Get all payments for a challenge (optional)
+     */
+    public function getChallengePayments($challengeId)
+    {
+        // You can implement this if your plans are linked to challenges
+        return response()->json([
+            'success' => true,
+            'data' => [],
         ]);
     }
 }

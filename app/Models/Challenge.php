@@ -39,7 +39,7 @@ class Challenge extends Model
 
     public function activeParticipants()
     {
-        return $this->hasMany(Participant::class)->where('participants.status', '=', 'active');
+        return $this->participants()->where('status', 'active');
     }
 
     public function payments()
@@ -52,21 +52,34 @@ class Challenge extends Model
         return $this->hasMany(Group::class);
     }
 
-    // Helper methods
-    public function getTotalCollected()
+    // Helper Accessors for API (automatically included in JSON)
+    public function getActiveParticipantsCountAttribute()
     {
-        return $this->payments()
-            ->where('payments.status', 'paid')
-            ->sum('amount');
+        return $this->activeParticipants()->count();
     }
 
-    public function getAvailableSlots()
+    public function getAvailableSlotsAttribute()
     {
-        return $this->max_participants - ($this->active_participants_count ?? 0);
+        return $this->max_participants - $this->getActiveParticipantsCountAttribute();
     }
 
-    public function isActive()
+    public function getTotalCollectedAttribute()
+    {
+        return $this->payments()->where('status', 'paid')->sum('amount');
+    }
+
+    public function getIsActiveAttribute()
     {
         return $this->status === 'active';
+    }
+
+    public function getDurationDaysAttribute()
+    {
+        return $this->start_date->diffInDays($this->end_date) + 1;
+    }
+
+    public function getTotalTargetAttribute()
+    {
+        return $this->daily_amount * $this->duration_days * $this->max_participants;
     }
 }
