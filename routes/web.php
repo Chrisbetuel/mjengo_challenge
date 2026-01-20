@@ -47,10 +47,10 @@ Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name(
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
 // Password Reset Routes
-Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.forgot');
-Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
-Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm']);
+Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
+Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm']);
+Route::post('/reset-password', [AuthController::class, 'resetPasswordWithOtp']);
 
 // Language Routes
 Route::post('/language/switch', [LanguageController::class, 'switchLanguage'])->name('language.switch');
