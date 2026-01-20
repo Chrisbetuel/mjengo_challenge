@@ -6,23 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->unsignedTinyInteger('otp_attempts')->default(0);
+            $table->timestamp('otp_last_sent_at')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn(['otp_attempts', 'otp_last_sent_at']);
         });
     }
 };
