@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\GroupController as ApiGroupController; // Create th
 Route::prefix('auth')->group(function () {
     Route::post('/register', [ApiAuthController::class, 'register']);
     Route::post('/login', [ApiAuthController::class, 'login']);
+    Route::post('/forgot-password/otp', [AuthController::class, 'sendOtp']);
+    Route::post('/reset-password/otp', [AuthController::class, 'resetPasswordWithOtp']);
     Route::post('/logout', [ApiAuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
