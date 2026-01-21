@@ -28,7 +28,7 @@
                 @endif
 
                 {{-- Form --}}
-                <form action="{{ route('password.otp.verify') }}" method="POST">
+                <form action="{{ route('resetpassword.otp') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
