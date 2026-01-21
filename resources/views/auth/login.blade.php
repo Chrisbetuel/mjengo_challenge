@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="text-center">
-                        <a href="{{ url('password.reset') }}" class="text-sm text-oweru-blue hover:text-oweru-gold futura-font">
+                        <a href="{{ url('/forgot-password') }}" class="text-sm text-oweru-blue hover:text-oweru-gold futura-font">
                             Forgot your password?
                         </a>
                     </div>

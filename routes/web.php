@@ -14,7 +14,6 @@ use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ChatbotController;
-use App\Http\Controllers\Api\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\ChallengeController as ApiChallengeController;
 use App\Http\Controllers\Api\PaymentController as ApiPaymentController;
 use App\Http\Controllers\Api\MaterialController as ApiMaterialController;
@@ -47,9 +46,9 @@ Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name(
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
 // Password Reset Routes
-Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm']);
-Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
-Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm']);
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('resetpassword.email');
+Route::post('/forgot-password', [AuthController::class, 'sendOtp'])->name('resetpassword.otp');
+Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('resetpassword');
 Route::post('/reset-password', [AuthController::class, 'resetPasswordWithOtp']);
 
 // Language Routes
