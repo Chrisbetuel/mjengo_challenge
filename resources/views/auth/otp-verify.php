@@ -19,7 +19,7 @@
                     </p>
                 </div>
 
-                {{-- Success / Error messages --}}
+                {{-- Success / Error Messages --}}
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
@@ -27,8 +27,15 @@
                     </div>
                 @endif
 
-                {{-- Form --}}
-                <form action="{{ route('resetpassword.otp') }}" method="POST">
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                {{-- OTP Form --}}
+                <form action="{{ route('otp.verify.post') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
@@ -57,11 +64,11 @@
                     </button>
                 </form>
 
-                {{-- Resend & Back --}}
+                {{-- Resend OTP & Back --}}
                 <div class="text-center mt-4 small">
                     <p class="mb-1">
                         Didn't receive the code?
-                        <a href="{{ route('password.otp.request') }}" class="text-warning fw-medium">Resend</a>
+                        <a href="{{ route('resetpassword.sendotp') }}" class="text-warning fw-medium">Resend</a>
                     </p>
                     <p>
                         <a href="{{ route('login') }}" class="text-decoration-none text-warning">&larr; Back to Login</a>

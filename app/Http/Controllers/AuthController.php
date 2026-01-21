@@ -189,4 +189,56 @@ class AuthController extends Controller
 
         return redirect('/login')->with('success', 'Password reset successful. You can now log in.');
     }
+
+    // ---------------------
+// OTP VERIFICATION
+// ---------------------
+
+/**
+ * Show the OTP verification page
+ */
+public function showOtpVerifyForm()
+{
+    if (!session('otp_email')) {
+        return redirect()->route('resetpassword.request')
+            ->with('error', 'Please enter your email first.');
+    }
+
+    return view('auth.otp-verify');
+}
+
+/**
+ * Verify the submitted OTP
+ */
+public function verifyOtp(Request $request)
+{
+    $request->validate([
+        'otp' => 'required|digits:6',
+    ]);
+
+    $email = session('otp_email');
+    $user = User::where('email', $email)->first();
+
+    if (!$user) {
+        return redirect()->route('resetpassword.email')
+            ->with('error', 'Invalid session. Please enter your email again.');
+    }
+
+    // Check OTP attempts
+    if ($user->otp_attempts >= 5) {
+        return redirect()->route('resetpassword.email')
+            ->with('error', 'Too many invalid attempts. Please request a new OTP.');
+    }
+
+    // Check OTP and expiration
+    if ($user->otp_code != $request->otp || now()->greaterThan($user->otp_expires_at)) {
+        $user->increment('otp_attempts');
+        return back()->withErrors(['otp' => 'Invalid or expired OTP.'])->withInput();
+    }
+
+    // OTP is valid
+    session(['otp_verified_email' => $user->email]); // store for reset step
+    return redirect()->route('resetpassword')->with('success', 'OTP verified. You can now reset your password.');
+}
+
 }
