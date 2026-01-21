@@ -35,7 +35,7 @@
                 @endif
 
                 {{-- OTP Form --}}
-                <form action="{{ route('otp.verify.post') }}" method="POST">
+                <form action="{{ url('/otp-verify') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
@@ -68,10 +68,10 @@
                 <div class="text-center mt-4 small">
                     <p class="mb-1">
                         Didn't receive the code?
-                        <a href="{{ route('resetpassword.sendotp') }}" class="text-warning fw-medium">Resend</a>
+                        <a href="{{ url('/forgot-password') }}" class="text-warning fw-medium">Resend</a>
                     </p>
                     <p>
-                        <a href="{{ route('login') }}" class="text-decoration-none text-warning">&larr; Back to Login</a>
+                        <a href="{{ url('/login') }}" class="text-decoration-none text-warning">&larr; Back to Login</a>
                     </p>
                 </div>
 
