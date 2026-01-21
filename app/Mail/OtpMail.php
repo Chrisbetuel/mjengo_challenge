@@ -1,6 +1,11 @@
 <?php
 
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class OtpMail extends Mailable implements ShouldQueue
 {
@@ -15,7 +20,8 @@ class OtpMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Your Password Reset OTP')
-                    ->view('emails.otp');
+        return $this
+            ->subject('Your Password Reset OTP')
+            ->view('emails.otp');
     }
 }
