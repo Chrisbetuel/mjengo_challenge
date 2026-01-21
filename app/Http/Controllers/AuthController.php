@@ -147,7 +147,9 @@ class AuthController extends Controller
         ]);
 
         // Send OTP via email
-        Mail::to($user->email)->queue(new OtpMail((string) $otp));
+        // Mail::to($user->email)->queue(new OtpMail((string) $otp));
+        Mail::to($user->email)->send(new OtpMail((string) $otp));
+
 
         return redirect()->back()->with('success', 'OTP sent to your email.');
     }
