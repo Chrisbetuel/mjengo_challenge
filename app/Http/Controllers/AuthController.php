@@ -122,37 +122,41 @@ class AuthController extends Controller
         return view('auth.forgot-password');
     }
 
-    public function sendOtp(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ]);
+   public function sendOtp(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+    ]);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        // Rate limit: 1 OTP per minute
-        if ($user->otp_last_sent_at && now()->diffInSeconds($user->otp_last_sent_at) < 60) {
-            return back()->withErrors([
-                'email' => 'Please wait a minute before requesting another OTP.',
-            ])->withInput();
-        }
-
-        $otp = random_int(100000, 999999);
-
-        $user->update([
-            'otp_code'         => $otp,
-            'otp_expires_at'   => Carbon::now()->addMinutes(5),
-            'otp_attempts'     => 0,
-            'otp_last_sent_at' => now(),
-        ]);
-
-        // Send OTP via email
-        // Mail::to($user->email)->queue(new OtpMail((string) $otp));
-        Mail::to($user->email)->send(new OtpMail((string) $otp));
-
-
-        return redirect()->back()->with('success', 'OTP sent to your email.');
+    // Rate limit: 1 OTP per minute
+    if ($user->otp_last_sent_at && now()->diffInSeconds($user->otp_last_sent_at) < 60) {
+        return back()->withErrors([
+            'email' => 'Please wait a minute before requesting another OTP.',
+        ])->withInput();
     }
+
+    $otp = random_int(100000, 999999);
+
+    $user->update([
+        'otp_code'         => $otp,
+        'otp_expires_at'   => now()->addMinutes(5),
+        'otp_attempts'     => 0,
+        'otp_last_sent_at' => now(),
+    ]);
+
+    // ✅ Store email for OTP verify page
+    session([
+        'otp_email' => $user->email,
+    ]);
+
+    // ✅ Send OTP (sync for now)
+    Mail::to($user->email)->send(new OtpMail((string) $otp));
+
+    // ✅ Redirect to OTP verify page
+    return redirect('/otp-verify')->with('success', 'OTP sent to your email.');
+}
 
     public function showResetPasswordForm()
     {
@@ -206,7 +210,7 @@ public function showOtpVerifyForm()
             ->with('error', 'Please enter your email first.');
     }
 
-    return view('auth.otp-verify');
+    return view('auth.otp');
 }
 
 /**

@@ -53,7 +53,7 @@ Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm']
 Route::post('/forgot-password', [AuthController::class, 'sendOtp'])->name('resetpassword.sendotp');
 
 // OTP Verification Form
-Route::get('/otp-verify', [AuthController::class, 'showOtpVerifyForm'])->name('otp.verify');
+Route::get('/otp-verify', [AuthController::class, 'showOtpVerifyForm'])->name('email.otp');
 
 // Verify OTP
 Route::post('/otp-verify', [AuthController::class, 'verifyOtp'])->name('otp.verify.post');
