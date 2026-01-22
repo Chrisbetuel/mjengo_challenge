@@ -27,7 +27,7 @@
                 @endif
 
                 {{-- Form --}}
-                <form action="{{ route('resetpassword.request') }}" method="POST">
+                <form action="{{ route('resetpassword.sendotp') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
