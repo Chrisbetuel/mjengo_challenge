@@ -159,52 +159,66 @@ class AuthController extends Controller
     /**
      * Show OTP verification form
      */
-    public function showOtpVerifyForm()
-    {
-        if (!session('otp_email')) {
-            return redirect()->route('resetpassword.request')
-                ->with('error', 'Please enter your email first.');
-        }
-
-        return view('auth.otp');
+   public function showOtpVerifyForm()
+{
+    if (!session()->has('otp_email')) {
+        return redirect('/forgot-password')
+            ->with('error', 'Please enter your email first.');
     }
 
-    /**
-     * Verify submitted OTP
-     */
-    public function verifyOtp(Request $request)
-    {
-        $request->validate([
-            'otp' => 'required|digits:6',
+    return view('auth.otp');
+}
+
+/**
+ * Verify submitted OTP
+ */
+public function verifyOtp(Request $request)
+{
+    $request->validate([
+        'otp' => 'required|digits:6',
+    ]);
+
+    $email = session('otp_email');
+    $user = User::where('email', $email)->first();
+
+    if (!$user) {
+        return redirect('/forgot-password')
+            ->with('error', 'Invalid session. Please request a new OTP.');
+    }
+
+    // Too many attempts
+    if ($user->otp_attempts >= 5) {
+        return redirect('/forgot-password')
+            ->with('error', 'Too many invalid attempts. Please request a new OTP.');
+    }
+
+    // OTP invalid or expired
+    if (
+        $user->otp_code !== $request->otp ||
+        now()->greaterThan($user->otp_expires_at)
+    ) {
+        $user->increment('otp_attempts');
+
+        return back()->withErrors([
+            'otp' => 'Invalid or expired OTP.'
         ]);
-
-        $email = session('otp_email');
-        $user = User::where('email', $email)->first();
-
-        if (!$user) {
-            return redirect()->route('resetpassword.request')
-                ->with('error', 'Invalid session. Please enter your email again.');
-        }
-
-        // Check OTP attempts
-        if ($user->otp_attempts >= 5) {
-            return redirect()->route('resetpassword.request')
-                ->with('error', 'Too many invalid attempts. Please request a new OTP.');
-        }
-
-        // Check OTP and expiration
-        if ($user->otp_code != $request->otp || now()->greaterThan($user->otp_expires_at)) {
-            $user->increment('otp_attempts');
-            return back()->withErrors(['otp' => 'Invalid or expired OTP.'])->withInput();
-        }
-
-        // OTP is valid — reset attempts and store for reset step
-        $user->update(['otp_attempts' => 0]);
-        session(['otp_verified_email' => $user->email]);
-
-        return redirect()->route('resetpassword.form')
-            ->with('success', 'OTP verified. You can now reset your password.');
     }
+
+    // ✅ OTP valid → clear OTP + allow password reset
+    $user->update([
+        'otp_code' => null,
+        'otp_expires_at' => null,
+        'otp_attempts' => 0,
+    ]);
+
+    session([
+        'otp_verified_email' => $user->email
+    ]);
+
+    return redirect('/reset-password')
+        ->with('success', 'OTP verified. You can now reset your password.');
+}
+
 
     /**
      * Show reset password form after OTP verification
