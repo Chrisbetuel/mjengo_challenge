@@ -19,6 +19,11 @@ class User extends Authenticatable
         'nida_id',
         'role',
         'reset_token',
+        
+        'otp_code',
+        'otp_expires_at',
+        'otp_attempts',
+        'otp_last_sent_at',
     ];
 
     protected $hidden = [
