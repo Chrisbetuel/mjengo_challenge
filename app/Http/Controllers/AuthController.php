@@ -194,7 +194,7 @@ public function verifyOtp(Request $request)
 
     // OTP invalid or expired
     if (
-        $user->otp_code !== $request->otp ||
+        (string) $user->otp_code !== (string) $request->otp ||
         now()->greaterThan($user->otp_expires_at)
     ) {
         $user->increment('otp_attempts');
