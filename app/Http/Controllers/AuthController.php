@@ -22,6 +22,16 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    private function generateUserId(): string
+{
+    do {
+        $userId = 'MJE' . random_int(10000, 99999);
+    } while (User::where('user_id', $userId)->exists());
+
+    return $userId;
+}
+
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
