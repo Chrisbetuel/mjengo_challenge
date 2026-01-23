@@ -44,7 +44,8 @@
             @auth
             <div class="navbar-nav ms-auto d-flex align-items-center">
                 <span class="navbar-text me-3">
-                    Welcome, {{ Auth::user()->username }}
+                    Welcome, {{ auth()->user()->username }} ({{ auth()->user()->user_id }})
+
                 </span>
                 <div class="dropdown me-3">
                     <button class="btn btn-outline-light position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">

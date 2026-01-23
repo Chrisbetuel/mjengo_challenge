@@ -169,7 +169,8 @@
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h1 class="mb-2">Admin Dashboard</h1>
-                    <p class="mb-0 opacity-75">Welcome back, {{ Auth::user()->username }}! Here's your system overview and management tools.</p>
+                    <p> Welcome back, {{ auth()->user()->username }} ({{ auth()->user()->user_id }})</p>
+
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     <div class="d-flex align-items-center justify-content-lg-end gap-2">
