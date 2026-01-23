@@ -143,6 +143,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/materials/{material}/edit', [AdminController::class, 'editMaterial'])->name('materials.edit');
     Route::put('/materials/{material}', [AdminController::class, 'updateMaterial'])->name('materials.update');
     Route::delete('/materials/{material}', [AdminController::class, 'destroyMaterial'])->name('materials.destroy');
+    Route::patch('/materials/{material}/toggle-status',[AdminController::class, 'toggleMaterialStatus'])->name('materials.toggle-status');
 
     // Challenge Management
     Route::get('/challenges', [AdminController::class, 'challenges'])->name('challenges');
