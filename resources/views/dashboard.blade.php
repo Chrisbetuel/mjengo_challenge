@@ -193,7 +193,12 @@
         <div class="welcome-section">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <h1 class="mb-2">Welcome back, {{ Auth::user()->username }}! {{{ Auth::user()->user_id}}}</h1>
+                    <p class="mb-0 opacity-75">
+                        Welcome back, <strong>{{ auth()->user()->username }}</strong>
+                       <span class="ms-2 text-muted">
+                       Customer ID: <strong>{{ auth()->user()->user_id }}</strong>
+                       </span>
+                    </p>
                     <p class="mb-0 opacity-75">Here's your progress overview and quick actions.</p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
