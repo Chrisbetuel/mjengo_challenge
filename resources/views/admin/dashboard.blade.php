@@ -169,7 +169,13 @@
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h1 class="mb-2">Admin Dashboard</h1>
-                    <p> Welcome back, {{ auth()->user()->username }} {{{ auth()->user()->user_id }}}</p>
+                    <p class="mb-0 opacity-75">
+                        Welcome back, <strong>{{ auth()->user()->username }}</strong>
+                       <span class="ms-2 text-muted">
+                       Customer ID: <strong>{{ auth()->user()->user_id }}</strong>
+                       </span>
+                    </p>
+
 
                 </div>
                 <div class="col-lg-4 text-lg-end">
